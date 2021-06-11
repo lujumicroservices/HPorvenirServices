@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HPorvenir.Storage;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,12 @@ namespace HPorvenir.Web.Api.Controllers
     [Route("[controller]")]
     public class NavigationController : Controller
     {
+        private readonly IStorage _storageProvider;
+        public NavigationController(IStorage storageProvider) {
+            _storageProvider = storageProvider;
+        }
+
+
         public IActionResult Index()
         {
             return View();
@@ -17,13 +25,20 @@ namespace HPorvenir.Web.Api.Controllers
 
 
         [HttpGet]
-        public string Get()
+        public IActionResult Get()
         {
             Navegation.Navegation navlogic = new Navegation.Navegation();
-            navlogic.LoadNavigation();
+            var data = navlogic.LoadNavigation();
+            return Ok(data);
+        }
 
 
-            return "";
+        [HttpGet("day/{year}/{month}/{day}")]
+        public IActionResult GetDay(int year, int month, int day)
+        {
+            
+            var results = _storageProvider.ListDay(year, month, day);
+            return Ok(results);
         }
     }
 }

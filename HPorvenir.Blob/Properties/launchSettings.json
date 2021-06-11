@@ -2,7 +2,7 @@
   "profiles": {
     "HPorvenir.Blob": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\HPorvenir D:\\ 1920/01/01  1950/01/01"
+      "commandLineArgs": "\"E:\\Porvenir\\Hemeroteca\\Diario\\Mexico\\Nuevo Leon\\Monterrey\\El Porvenir\" \"E:\\Porvenir\\Hemeroteca\\Diario\\Mexico\\Nuevo Leon\\Monterrey\"  1920/01/01  ozatarain@tiempodevelopment.com1950/01/01"
     }
   }
 }

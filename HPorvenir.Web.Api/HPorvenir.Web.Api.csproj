@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>7f0cb18c-6131-4bd2-b2f5-71cff9df425a</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +17,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.15" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HPorvenir.Blob\HPorvenir.Blob.csproj" />
     <ProjectReference Include="..\HPorvenir.Navegation\HPorvenir.Navegation.csproj" />
+    <ProjectReference Include="..\HPorvenir.Storage\HPorvenir.Storage.csproj" />
   </ItemGroup>
 
 

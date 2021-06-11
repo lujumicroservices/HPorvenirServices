@@ -5,11 +5,13 @@ using System.Text;
 
 namespace HPorvenir.Storage
 {
-    interface IStorage
+    public interface IStorage
     {
-        File Read();
-        File Save(bool overwrite = false);
+        bool Read();
+        bool Save(bool overwrite = false);
         void Delete();
+
+        List<string> ListDay(int year, int month, int day);
     }
 }
  
