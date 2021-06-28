@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HPorvenir.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -11,7 +12,7 @@ namespace HPorvenir.Storage
         bool Save(bool overwrite = false);
         void Delete();
 
-        List<string> ListDay(int year, int month, int day);
+        DayResult ListDay(int year, int month, int day);
     }
 }
  

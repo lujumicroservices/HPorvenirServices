@@ -11,7 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.Storage", "HPorve
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.Core", "HPorvenir.Core\HPorvenir.Core.csproj", "{34774000-EA79-442B-A0AC-084D5B6B9383}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HPorvenir.Navegation", "HPorvenir.Navegation\HPorvenir.Navegation.csproj", "{36B5C221-D6E2-4AF3-9362-75864C4EB377}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.Navegation", "HPorvenir.Navegation\HPorvenir.Navegation.csproj", "{36B5C221-D6E2-4AF3-9362-75864C4EB377}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.Tiff2PDF", "HPorvenir.Tiff2PDF\HPorvenir.Tiff2PDF.csproj", "{FA54FE93-B151-4A1D-8288-70B907784A8C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.Model", "HPorvenir.Model\HPorvenir.Model.csproj", "{6D3CAD2A-5083-4543-A029-40ECD687C23B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "legacydecript", "legacydecript\legacydecript.csproj", "{D53BBC23-4DB0-44E1-B385-37F2FADC45D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +45,18 @@ Global
 		{36B5C221-D6E2-4AF3-9362-75864C4EB377}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36B5C221-D6E2-4AF3-9362-75864C4EB377}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36B5C221-D6E2-4AF3-9362-75864C4EB377}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA54FE93-B151-4A1D-8288-70B907784A8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA54FE93-B151-4A1D-8288-70B907784A8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA54FE93-B151-4A1D-8288-70B907784A8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA54FE93-B151-4A1D-8288-70B907784A8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D3CAD2A-5083-4543-A029-40ECD687C23B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D3CAD2A-5083-4543-A029-40ECD687C23B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D3CAD2A-5083-4543-A029-40ECD687C23B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D3CAD2A-5083-4543-A029-40ECD687C23B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D53BBC23-4DB0-44E1-B385-37F2FADC45D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D53BBC23-4DB0-44E1-B385-37F2FADC45D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D53BBC23-4DB0-44E1-B385-37F2FADC45D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D53BBC23-4DB0-44E1-B385-37F2FADC45D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
