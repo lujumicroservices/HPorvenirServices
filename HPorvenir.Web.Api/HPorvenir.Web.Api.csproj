@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -17,14 +17,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper.Logging" Version="0.4.3" />
+    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00014" />
+    <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00014" />
+    <PackageReference Include="Lucene.Net.Store.Azure" Version="4.8.0-beta011" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.17" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.15" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HPorvenir.Authentication\HPorvenir.Authentication.csproj" />
     <ProjectReference Include="..\HPorvenir.Blob\HPorvenir.Blob.csproj" />
+    <ProjectReference Include="..\HPorvenir.Document\HPorvenir.Document.csproj" />
+    <ProjectReference Include="..\HPorvenir.Elastic\HPorvenir.Elastic.csproj" />
     <ProjectReference Include="..\HPorvenir.Navegation\HPorvenir.Navegation.csproj" />
     <ProjectReference Include="..\HPorvenir.Storage\HPorvenir.Storage.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="assets\marca_agua.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 

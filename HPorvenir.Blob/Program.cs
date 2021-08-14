@@ -17,7 +17,12 @@ namespace HPorvenir.Blob
             Console.WriteLine(args[1]);
 
 
-            getpasswords("gc3/h0kIvetxD6Se3V+azw==", "<CET>Digix.S.A.Gdl.Jalisco.Mx</CET>");
+            BlobManager manager = new BlobManager();
+            manager.initIndexBlob("");
+            manager.exportIndex();
+
+
+            //getpasswords("gc3/h0kIvetxD6Se3V+azw==", "<CET>Digix.S.A.Gdl.Jalisco.Mx</CET>");
             //Migrate(args);
 
             //transformimages();

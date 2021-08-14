@@ -1,4 +1,5 @@
 ﻿using HPorvenir.Storage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -10,17 +11,12 @@ namespace HPorvenir.Web.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class NavigationController : Controller
     {
         private readonly IStorage _storageProvider;
         public NavigationController(IStorage storageProvider) {
             _storageProvider = storageProvider;
-        }
-
-
-        public IActionResult Index()
-        {
-            return View();
         }
 
 
@@ -38,6 +34,14 @@ namespace HPorvenir.Web.Api.Controllers
         {
             
             var results = _storageProvider.ListDay(year, month, day);
+            return Ok(results);
+        }
+
+        [HttpGet("file/{pathId}")]
+        public IActionResult GetFile(string pathId)
+        {
+
+            var results = _storageProvider.ReadAsync(pathId);
             return Ok(results);
         }
     }

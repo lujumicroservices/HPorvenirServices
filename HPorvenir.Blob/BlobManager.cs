@@ -21,6 +21,8 @@ namespace HPorvenir.Blob
         string _path;
         int _hilos;
 
+        public BlobManager() { 
+        }
 
         public BlobManager(string path, int hilos) {
             connectionString = "DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net";
@@ -32,16 +34,19 @@ namespace HPorvenir.Blob
             containerClient.CreateIfNotExists();
         }
 
+        public void initIndexBlob(string path) {
+
+            connectionString = "DefaultEndpointsProtocol=https;AccountName=hporvenirindex;AccountKey=NXMwdOr6MM8r0DtdnuDZVtbxVWuJhtRyNNYI4nJaAlbxNPPOjUTl9ZGiU33P4yg9peMR8RDbIvZE5DHDqVe0Fw==;EndpointSuffix=core.windows.net";
+            blobServiceClient = new BlobServiceClient(connectionString);                        
+        }
+
 
         
         public async Task MigrateData() {
-
             //string basepath = @"D:\HPorvenir\";
             string basepath = _path;
             DirectoryInfo directory = new DirectoryInfo(basepath);
-
             await Navigate(directory);
-
         }
 
 
@@ -56,33 +61,17 @@ namespace HPorvenir.Blob
 
             Console.WriteLine($"PROCESSING FOLDER {directory.FullName}");
            
-
             var options = new ParallelOptions();
             options.MaxDegreeOfParallelism = _hilos;
-
-
-            //foreach (var file in files) {
-            //    if ((file.Extension == ".tiff" || file.Extension == ".tif" || file.Extension == ".pdf"))
-            //    {
-            //        Console.WriteLine($"uploading data {file.FullName}");
-            //        uploadBlob(file);
-            //    }
-            //}
-
+       
             Parallel.ForEach(files, options, file =>
             {
-
-
-
-                if ((file.Extension == ".tiff" || file.Extension == ".tif" || file.Extension == ".pdf"))
+                if ((file.Extension == ".xml" || file.Extension == ".pdf"))
                 {
                     Console.WriteLine($"uploading data {file.FullName}");
                     uploadBlob(file);
                 }
-
             });
-
-
         }
 
         public bool uploadBlob(FileInfo file) {
@@ -255,6 +244,36 @@ namespace HPorvenir.Blob
 
         }
 
+
+        public void exportIndex() {
+
+            string basepath = @"E:\Indices";
+            var baseIndexFolder = new System.IO.DirectoryInfo(basepath);
+            var existingIndexes = baseIndexFolder.GetDirectories();
+            foreach (var indexfolder in existingIndexes) {
+                Console.WriteLine($"procesing index {indexfolder.Name}");
+                uploadIndex(indexfolder);
+            }
+        }
+
+
+        private bool uploadIndex(DirectoryInfo index) {
+
+            containerClient = blobServiceClient.GetBlobContainerClient(index.Name.Replace("Porvenir_",""));
+            containerClient.CreateIfNotExists();
+            var indexFiles = index.GetFiles();
+            foreach (var file in indexFiles) {
+                using (FileStream fs = file.OpenRead())
+                {
+                    Console.WriteLine($"uploading file {file.Name}");
+                    containerClient.UploadBlob(file.Name, fs);
+                }                
+            }
+
+            return true;
+        }
+
+        
 
     }
 }

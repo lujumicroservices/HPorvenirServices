@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data;
+
+using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace legacydecript
 {
@@ -10,6 +12,14 @@ namespace legacydecript
     {
         static void Main(string[] args)
         {
+            getpasswords("gc3/h0kIvetxD6Se3V+azw==", "<CET>Digix.S.A.Gdl.Jalisco.Mx</CET>");
+        }
+
+        static void getpasswords(string user, string privatekey)
+        {
+
+
+          
         }
     }
 }

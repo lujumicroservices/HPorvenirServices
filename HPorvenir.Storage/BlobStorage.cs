@@ -36,18 +36,25 @@ namespace HPorvenir.Storage
 
         public void Delete()
         {
-            throw new NotImplementedException();
-
-             
-
-            for (var x = 0; x< 10;) {
-                var d = 0;
-            }
+            throw new NotImplementedException();             
         }
 
-        public bool Read()
+        public async System.Threading.Tasks.Task<Stream> ReadAsync(string pathId)
         {
-            throw new NotImplementedException();
+            string stringDate = pathId.Substring(0, 8);
+            string year = stringDate.Substring(0, 4);
+            string month = stringDate.Substring(4, 2);
+            string day = stringDate.Substring(6, 2);
+            string filename = pathId.Substring(8, pathId.Length - 8);
+
+            string path = $"{year}/{month}/{day}/{year}_{month}_{day}_{filename.Replace(".xml",".pdf")}";
+
+            var bclient = _container.GetBlobClient(path);
+
+            MemoryStream bstream = new MemoryStream();
+            await bclient.DownloadToAsync(bstream);
+            bstream.Position = 0;
+            return bstream;                     
         }
 
         public bool Save(bool overwrite = false)
@@ -149,13 +156,7 @@ namespace HPorvenir.Storage
 
 
         }
-
-
-        
-    
-
-
-
+            
         public DayResult ListDay(int year, int month, int day) {
 
 
@@ -169,8 +170,7 @@ namespace HPorvenir.Storage
             List<string> files_thumb = new List<string>();
 
             var filter = $"{year}/{month.ToString("0#")}/{day.ToString("0#")}/";
-            var blobs = _container.GetBlobs(prefix: filter);
-            bool existPDF = false;
+            var blobs = _container.GetBlobs(prefix: filter);            
 
             foreach (BlobItem blob in blobs)
             {
@@ -190,5 +190,7 @@ namespace HPorvenir.Storage
             return result;
         
         }
+
+        
     }
 }
