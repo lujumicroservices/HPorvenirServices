@@ -21,19 +21,17 @@ namespace HPorvenir.Web.Api
         public static void Main(string[] args)
         {
             
-            Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Verbose)
+            Log.Logger = new LoggerConfiguration()                                    
+            .MinimumLevel.Debug()
             .Enrich.FromLogContext()
-            .WriteTo.Console()
+            .WriteTo.Console(LogEventLevel.Debug)
             .CreateLogger();
-
             CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
-                .ReadFrom.Configuration(hostingContext.Configuration))
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

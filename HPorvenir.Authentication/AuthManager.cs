@@ -31,7 +31,7 @@ namespace HPorvenir.Authentication
             
             Model.User _user = null;
 
-            _logger.LogTrace("getting user");
+            _logger.LogDebug("getting user");
             try {
                 _user = _userDal.GetUserByUserName(user);
                 _user.Role = new[]{ "admin"};
@@ -41,7 +41,7 @@ namespace HPorvenir.Authentication
             }
 
 
-            _logger.LogTrace("validate process start");
+            _logger.LogDebug("validate process start");
             if (password == Encryption.Decode(_user.Password, key))
             {
                 return _user;
