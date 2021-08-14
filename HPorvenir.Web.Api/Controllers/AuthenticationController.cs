@@ -3,6 +3,7 @@ using HPorvenir.Elastic;
 using HPorvenir.Storage;
 using HPorvenir.Web.Api.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +20,13 @@ namespace HPorvenir.Web.Api.Controllers
     {
 
         AuthManager _authManager = null;
+        private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController(AuthManager authManager) {
+
+
+        public AuthenticationController(AuthManager authManager, ILogger<AuthenticationController> logger) {
             _authManager = authManager;
+            _logger = logger;
         }
 
         

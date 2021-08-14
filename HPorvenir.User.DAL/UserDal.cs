@@ -15,13 +15,18 @@ namespace HPorvenir.User.DAL
         
 
         public UserDAL(IDbConnectionFactory connectionFactory,IConfiguration configuration) {
+
+
+
             _connectionFactory = connectionFactory;
         }
 
         public Model.User GetUserByUserName(string userName) {
 
+            Console.WriteLine("inicia logeo de connection");
+
             using (IDbConnection db = _connectionFactory.CreateConnection()) 
-            {
+            {                                
                 return db.QueryFirst<Model.User>("Select * From Users WHERE UserName=@userName", new { userName = userName } );
             }
         }
