@@ -40,5 +40,11 @@ namespace HPorvenir.Authentication
 			return tokenHandler.WriteToken(token);
 		}
 
+
+		
+
+
+	
+
 	}
 }

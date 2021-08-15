@@ -2,6 +2,7 @@
 using HPorvenir.Elastic;
 using HPorvenir.Storage;
 using HPorvenir.Web.Api.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -36,6 +37,15 @@ namespace HPorvenir.Web.Api.Controllers
             var user = _authManager.VerifyUser(login.User, login.Password);
             var token = _authManager.GenerateToken(user);            
             return Ok(new { user = user, access_token = token  });
+        }
+
+        [HttpGet("accesstoken")]
+        [Authorize]
+        public IActionResult accessToken()
+        {
+            var user = _authManager.GetUset(HttpContext.User.Identity.Name);
+            var token = _authManager.GenerateToken(user);
+            return Ok(new { user = user, access_token = token });            
         }
 
 

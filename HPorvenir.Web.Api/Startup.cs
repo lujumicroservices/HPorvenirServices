@@ -28,7 +28,8 @@ namespace HPorvenir.Web.Api
         public void ConfigureServices(IServiceCollection services)
         {
 
-            var mySecret = "asdv234234^&%&^%&^hjsdfb2%%%";            
+            var mySecret = "asdv234234^&%&^%&^hjsdfb2%%%";
+            
             var key = Encoding.ASCII.GetBytes(mySecret);           
             var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(mySecret));
 
@@ -55,13 +56,27 @@ namespace HPorvenir.Web.Api
                      x.SaveToken = true;
                      x.TokenValidationParameters = new TokenValidationParameters
                      {
-                         ValidateIssuerSigningKey = true,
+                         ValidateIssuerSigningKey = false,
                          IssuerSigningKey = mySecurityKey,
                          ValidateIssuer = false,
                          ValidateAudience = false,
                          ValidateLifetime = true,
                          // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                          ClockSkew = TimeSpan.Zero
+                     };
+                     x.IncludeErrorDetails = true;
+                     x.Events = new JwtBearerEvents()
+                     {
+                         OnAuthenticationFailed = context =>
+                         {
+                             //context.Response.StatusCode = HttpStatusCodes.AuthenticationFailed;
+                             context.Response.ContentType = "application/json";
+                             //var err = this.Environment.IsDevelopment() ? context.Exception.ToString() : "An error occurred processing your authentication.";
+                             //var result = JsonConvert.SerializeObject(new { err });
+                             //return context.Response.wri;
+                             return null;
+                         }
+                         
                      };
                  });
 

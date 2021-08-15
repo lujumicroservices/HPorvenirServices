@@ -52,5 +52,25 @@ namespace HPorvenir.Authentication
 
             return _user;
         }
+
+        public Model.User GetUset(string user)
+        {
+
+            Model.User _user = null;
+
+            _logger.LogDebug("getting user");
+            try
+            {
+                _user = _userDal.GetUserByUserName(user);
+                _user.Role = new[] { "admin" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "error trying to get user");
+            }
+
+
+            return _user;
+        }
     }
 }
