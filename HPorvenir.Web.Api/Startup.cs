@@ -81,8 +81,10 @@ namespace HPorvenir.Web.Api
                  });
 
 
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
             services.AddControllers().AddNewtonsoftJson();
             
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

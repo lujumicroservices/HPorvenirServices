@@ -4,6 +4,7 @@ using HPorvenir.Storage;
 using HPorvenir.Web.Api.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,9 +20,12 @@ namespace HPorvenir.Web.Api.Controllers
     public class SearchController : Controller
     {
         private readonly IStorage _storageProvider;
-        public SearchController(IStorage storageProvider)
+        private readonly ILogger<SearchController> _logger;
+
+        public SearchController(IStorage storageProvider, ILogger<SearchController> logger)
         {
             _storageProvider = storageProvider;
+            _logger = logger;
         }
 
 
@@ -37,11 +41,21 @@ namespace HPorvenir.Web.Api.Controllers
 
 
         [HttpPost("file")]
-        public async Task<FileStreamResult> FileInfoAsync(SearchRequest searchRequest)
+        public async Task<ActionResult> FileInfoAsync(SearchRequest searchRequest)
         {
             Searcher searcher = new Searcher("hporvenir*");
+            _logger.LogDebug("search {@searchRequest}", searchRequest);
             var resultHits = searcher.FileDetails(searchRequest.FileName, searchRequest.Terms, searchRequest.IsPhrase, searchRequest.StartDate, searchRequest.EndDate);
-            var fileStream = await  _storageProvider.ReadAsync(searchRequest.FileName);
+            Stream fileStream = null;
+            try
+            {
+                fileStream = await _storageProvider.ReadAsync(searchRequest.FileName);
+            }
+            catch (Exception ex) {
+
+                return StatusCode(500, new { error = "Archivo no encontrado, el problema fue reportado automaticamente al administrador", code = 1000 });
+            }
+            
             PDFDocument doc = new PDFDocument();
             var pdfStream =  doc.ProcessFile(fileStream, resultHits);
            

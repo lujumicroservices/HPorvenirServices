@@ -4,6 +4,7 @@ using BitMiracle.LibTiff.Classic;
 using BitMiracle.Tiff2Pdf;
 using HPorvenir.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,10 +22,13 @@ namespace HPorvenir.Storage
         private string URLPrefix;
         private string ContainerName;
         private string AuthKey;
+        private readonly ILogger<BlobStorage> _logger;
 
 
-        public BlobStorage(IConfiguration configuration) {
+
+        public BlobStorage(IConfiguration configuration, ILogger<BlobStorage> logger) {
             _configuration = configuration;
+            _logger = logger;
 
             string connectionString = _configuration.GetSection("BlobStorage:ConnectionString").Value;
             ContainerName = _configuration.GetSection("BlobStorage:RootContainer").Value;
@@ -47,12 +51,19 @@ namespace HPorvenir.Storage
             string day = stringDate.Substring(6, 2);
             string filename = pathId.Substring(8, pathId.Length - 8);
 
-            string path = $"{year}/{month}/{day}/{year}_{month}_{day}_{filename.Replace(".xml",".pdf")}";
-
+            string path = $"{year}/{month}/{day}/{year}_{month}_{day}_{filename.Replace(".xml",".pdf")}";            
             var bclient = _container.GetBlobClient(path);
 
             MemoryStream bstream = new MemoryStream();
-            await bclient.DownloadToAsync(bstream);
+            try
+            {
+                await bclient.DownloadToAsync(bstream);
+            }
+            catch (Exception ex) {
+                _logger.LogError("fetching file from storage {@file}", path);
+                throw new Exception($"Error occurs trying to fetch the file {path} ",ex);
+            }
+            
             bstream.Position = 0;
             return bstream;                     
         }
