@@ -13,7 +13,7 @@ namespace HPorvenir.Document
     public class PDFDocument
     {
 
-        public Stream ProcessFile(Stream fileStram, List<Paragraph> hits) {
+        public Stream ProcessFile(Stream fileStram, List<Paragraph> hits, bool removeWhaterMark) {
 
             Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(fileStram);
             Image img = Image.FromFile(@"./assets/marca_agua.gif");
@@ -43,7 +43,8 @@ namespace HPorvenir.Document
                 for (int j = 0; j < hpositions; j++) {
                     float x = pima.Width * j - (bitLine? pima.Width/2 : 0);
                     float y = pima.Height * i;
-                    page.Canvas.DrawImage(pima, x, y);
+                    if(!removeWhaterMark)
+                        page.Canvas.DrawImage(pima, x, y);
                 }
                 bitLine = !bitLine;
             }

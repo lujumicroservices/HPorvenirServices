@@ -42,7 +42,7 @@
 
   <ItemGroup>
     <None Update="assets\marca_agua.gif">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

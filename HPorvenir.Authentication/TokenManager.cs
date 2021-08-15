@@ -19,17 +19,23 @@ namespace HPorvenir.Authentication
 			var myAudience = "http://hemerotecaporvenir.com";
 
 			var tokenHandler = new JwtSecurityTokenHandler();
+
+
+			List<Claim> claims = new List<Claim>();
+			claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+			claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+			claims.Add(new Claim(ClaimTypes.Email, user.Email));
+			claims.Add(new Claim(ClaimTypes.GivenName, user.Name + " " + user.LastName));
+
+			foreach (var rol in user.Role) {
+				claims.Add(new Claim(ClaimTypes.Role, rol.ToLower()));
+			}
+
+
+
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
-				Subject = new ClaimsIdentity(new Claim[]
-				{
-			new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-			new Claim(ClaimTypes.Name, user.UserName),
-			new Claim(ClaimTypes.Email, user.Email),
-			new Claim(ClaimTypes.GivenName, user.Name + " " + user.LastName),
-			new Claim(ClaimTypes.Role, user.Role.ToString())
-
-				}),
+				Subject = new ClaimsIdentity(claims.ToArray()),
 				Expires = DateTime.UtcNow.AddDays(7),
 				Issuer = myIssuer,
 				Audience = myAudience,
