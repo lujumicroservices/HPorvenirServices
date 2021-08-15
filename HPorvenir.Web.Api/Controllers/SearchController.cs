@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace HPorvenir.Web.Api.Controllers
@@ -57,8 +58,13 @@ namespace HPorvenir.Web.Api.Controllers
             }
             
             PDFDocument doc = new PDFDocument();
+
+            var isAdmin = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role);
+
             var pdfStream =  doc.ProcessFile(fileStream, resultHits);
            
+
+
             return new FileStreamResult(pdfStream, new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/pdf"));
         }
     }

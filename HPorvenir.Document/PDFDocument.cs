@@ -16,8 +16,8 @@ namespace HPorvenir.Document
         public Stream ProcessFile(Stream fileStram, List<Paragraph> hits) {
 
             Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(fileStram);
-            Image img = Image.FromFile(@"/assets/marca_agua.gif");
-            PdfImage pima = PdfImage.FromFile(@"/assets/marca_agua.gif");
+            Image img = Image.FromFile(@"./assets/marca_agua.gif");
+            PdfImage pima = PdfImage.FromFile(@"./assets/marca_agua.gif");
             var stream = new System.IO.MemoryStream();
                         
             PdfPen pen = new PdfPen(PdfBrushes.Yellow, 1f);
