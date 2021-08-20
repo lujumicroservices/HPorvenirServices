@@ -43,7 +43,7 @@ namespace HPorvenir.Storage
             throw new NotImplementedException();             
         }
 
-        public async System.Threading.Tasks.Task<Stream> ReadAsync(string pathId)
+        public async System.Threading.Tasks.Task<Stream> ReadPathFromIndexAsync(string pathId)
         {
             string stringDate = pathId.Substring(0, 8);
             string year = stringDate.Substring(0, 4);
@@ -66,6 +66,26 @@ namespace HPorvenir.Storage
             
             bstream.Position = 0;
             return bstream;                     
+        }
+
+        public async System.Threading.Tasks.Task<Stream> ReadPathAsync(string pathId)
+        {
+            
+            var bclient = _container.GetBlobClient(pathId);
+
+            MemoryStream bstream = new MemoryStream();
+            try
+            {
+                await bclient.DownloadToAsync(bstream);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("fetching file from storage {@file}", pathId);
+                throw new Exception($"Error occurs trying to fetch the file {pathId} ", ex);
+            }
+
+            bstream.Position = 0;
+            return bstream;
         }
 
         public bool Save(bool overwrite = false)

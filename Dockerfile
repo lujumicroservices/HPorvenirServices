@@ -1,10 +1,12 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgdiplus libc6-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN ["apt-get", "update"]
+RUN ["apt-get", "-y", "install", "libgdiplus"]
+RUN ["apt-get", "-y", "install", "xvfb", "libfontconfig", "wkhtmltopdf"]
+RUN ["apt-get", "-y", "install", "libc6-dev"]
+RUN ["apt-get", "-y", "install", "openssl"]
+RUN ["apt-get", "-y", "install", "libssl1.0-dev"]
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443

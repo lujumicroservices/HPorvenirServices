@@ -50,7 +50,7 @@ namespace HPorvenir.Web.Api.Controllers
             Stream fileStream = null;
             try
             {
-                fileStream = await _storageProvider.ReadAsync(searchRequest.FileName);
+                fileStream = await _storageProvider.ReadPathFromIndexAsync(searchRequest.FileName);
             }
             catch (Exception ex) {
 

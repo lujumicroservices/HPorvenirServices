@@ -28,6 +28,7 @@ namespace HPorvenir.Document
             //page.BackgroundImage = stream;
             page.Canvas.SetTransparency(.5f);
 
+            if (hits != null)
             foreach (var hit in hits) {
                 var coords = hit.Coords.Split(',');
                 page.Canvas.DrawRectangle(pen, brush1, new Rectangle(new Point(int.Parse(coords[0]) * 72 / 300, int.Parse(coords[1]) * 72 / 300), new Size((int.Parse(coords[2]) - int.Parse(coords[0])) * 72 / 300, (int.Parse(coords[3]) - int.Parse(coords[1])) * 72 / 300)));

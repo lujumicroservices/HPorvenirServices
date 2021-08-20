@@ -24,6 +24,16 @@ namespace HPorvenir.Storage
             throw new NotImplementedException();
         }
 
+        public Task<Stream> ReadPathAsync(string fileName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Stream> ReadPathFromIndexAsync(string fileName)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Save(bool overwrite = false)
         {
             throw new NotImplementedException();

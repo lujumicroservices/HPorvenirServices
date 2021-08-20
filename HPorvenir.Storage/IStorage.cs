@@ -8,7 +8,12 @@ namespace HPorvenir.Storage
 {
     public interface IStorage
     {
-        System.Threading.Tasks.Task<Stream> ReadAsync(string fileName);
+        System.Threading.Tasks.Task<Stream> ReadPathFromIndexAsync(string fileName);
+        System.Threading.Tasks.Task<Stream> ReadPathAsync(string fileName);
+
+
+        
+
         bool Save(bool overwrite = false);
         void Delete();
 

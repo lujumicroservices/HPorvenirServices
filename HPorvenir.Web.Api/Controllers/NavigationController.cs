@@ -1,10 +1,14 @@
-﻿using HPorvenir.Storage;
+﻿using HPorvenir.Document;
+using HPorvenir.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace HPorvenir.Web.Api.Controllers
@@ -38,11 +42,28 @@ namespace HPorvenir.Web.Api.Controllers
         }
 
         [HttpGet("file/{pathId}")]
-        public IActionResult GetFile(string pathId)
+        public async Task<IActionResult> GetFileAsync(string pathId)
         {
 
-            var results = _storageProvider.ReadAsync(pathId);
-            return Ok(results);
+            Stream fileStream = null;
+            try
+            {
+                fileStream = await _storageProvider.ReadPathAsync(WebUtility.UrlDecode(pathId));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new { error = "Archivo no encontrado, el problema fue reportado automaticamente al administrador", code = 1000 });
+            }
+
+            PDFDocument doc = new PDFDocument();
+            var isAdmin = HttpContext.User.Claims.Any(x => x.Type == ClaimTypes.Role && x.Value == "admin");
+            var pdfStream = doc.ProcessFile(fileStream, null, isAdmin);
+            return new FileStreamResult(pdfStream, new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/pdf"));            
         }
+
+
+
+
     }
 }

@@ -33,8 +33,7 @@ namespace HPorvenir.Authentication
 
             _logger.LogDebug("getting user");
             try {
-                _user = _userDal.GetUserByUserName(user);
-                _user.Role = new[]{ "admin"};
+                _user = _userDal.GetUserByUserName(user);                
             }
             catch (Exception ex) {
                 _logger.LogError(ex,"error trying to get user");
@@ -61,8 +60,7 @@ namespace HPorvenir.Authentication
             _logger.LogDebug("getting user");
             try
             {
-                _user = _userDal.GetUserByUserName(user);
-                _user.Role = new[] { "admin" };
+                _user = _userDal.GetUserByUserName(user);                
             }
             catch (Exception ex)
             {

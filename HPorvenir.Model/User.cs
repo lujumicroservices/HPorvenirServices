@@ -12,7 +12,14 @@ namespace HPorvenir.Model
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string[] Role { get; set; }
+        public string[] Role { 
+            get {
+                if (RoleArray == null)
+                    return new string[] { };
+
+                return RoleArray.Split(',');
+            } 
+        }
         public string RoleArray { get; set; }
     }
 }
