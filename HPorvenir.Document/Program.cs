@@ -22,8 +22,16 @@ namespace HPorvenir.Elastic
             //var result = new Searcher("hporvenir*").Search(terms,false);
             //var result = new Searcher("hporvenir*").FileDetails("1971070300460-03.xml", terms, false);
 
+            Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(@"D:\DEV\06_03_2021_14_Escena2.pdf");
 
-            PDFDocument doc = new PDFDocument();
+            var page = doc.Pages[0];
+            var text = page.FindAllText();
+            var text2 = page.ExtractText();
+            //page.FindText()
+            
+
+
+            //PDFDocument doc = new PDFDocument();
             //doc.ProcessFile();
 
             

@@ -1,6 +1,9 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
 using BitMiracle.LibTiff.Classic;
 using BitMiracle.Tiff2Pdf;
+using Serilog;
+using Spire.Pdf;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -19,27 +22,28 @@ namespace HPorvenir.Blob
         // Create the container and return a container client object
         BlobContainerClient containerClient;
         string _path;
-        int _hilos;
+        
+        int _hilos = 1;        
+        int _start;
+        int _end;
 
         public BlobManager() { 
         }
 
-        public BlobManager(string path, int hilos) {
+        public BlobManager(string path, int hilos, int start = 0, int end = 3000) {
+            
             connectionString = "DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net";
             blobServiceClient = new BlobServiceClient(connectionString);
+            
             // Create the container and return a container client object
             _path = path;
             _hilos = hilos;
-            containerClient = blobServiceClient.GetBlobContainerClient("hemeroteca");
+            _start = start;
+            _end = end;
+
+            containerClient = blobServiceClient.GetBlobContainerClient("hemerotecav2");
             containerClient.CreateIfNotExists();
         }
-
-        public void initIndexBlob(string path) {
-
-            connectionString = "DefaultEndpointsProtocol=https;AccountName=hporvenirindex;AccountKey=NXMwdOr6MM8r0DtdnuDZVtbxVWuJhtRyNNYI4nJaAlbxNPPOjUTl9ZGiU33P4yg9peMR8RDbIvZE5DHDqVe0Fw==;EndpointSuffix=core.windows.net";
-            blobServiceClient = new BlobServiceClient(connectionString);                        
-        }
-
 
         
         public async Task MigrateData() {
@@ -51,13 +55,23 @@ namespace HPorvenir.Blob
 
 
 
-        public async Task ProcessFolder(DirectoryInfo directory) {
-            var files = directory.GetFiles();
-
+        public Task ProcessFolder(DirectoryInfo directory)
+        {
             var validDir = checkfilestructure(directory, out string year);
 
-            if (!validDir || int.Parse(year) < 1940)
-                return;
+
+            if (!validDir) {
+                Log.Error("INVALID {directory}", directory.FullName);
+                return Task.CompletedTask;
+            }
+                
+
+            var files = directory.GetFiles("*.pdf");
+
+            if (files.Length == 0)
+            {
+                files = directory.GetFiles("*.tif");
+            }
 
             Console.WriteLine($"PROCESSING FOLDER {directory.FullName}");
            
@@ -65,64 +79,122 @@ namespace HPorvenir.Blob
             options.MaxDegreeOfParallelism = _hilos;
        
             Parallel.ForEach(files, options, file =>
-            {
-                if ((file.Extension == ".xml" || file.Extension == ".pdf"))
-                {
-                    Console.WriteLine($"uploading data {file.FullName}");
-                    uploadBlob(file);
-                }
+            {                
+                Console.WriteLine($"uploading data {file.FullName}");
+                var uploadresult =  uploadBlobAsync(file).Result;                                
             });
+            return Task.CompletedTask;
         }
 
-        public bool uploadBlob(FileInfo file) {
+        public async Task<bool> uploadBlobAsync(FileInfo file) {
             try
             {
-                //BlobClient blobClient = containerClient.GetBlobClient(CalculateBlobName(file));
-                //using FileStream uploadFileStream = File.OpenRead(file.FullName);
+
+                using FileStream uploadFileStream = File.OpenRead(file.FullName);
+                var upresult = await containerClient.UploadBlobAsync(CalculateBlobName(file), uploadFileStream);
 
 
-                var pdfStream = tiffToPdf(file);
-                containerClient.UploadBlob(CalculateBlobName(file), pdfStream);
-                var thumbStream = tiffTothumb(file);
-                containerClient.UploadBlob(CalculateThumbBlobName(file), thumbStream);
 
-                pdfStream.Dispose();
-                thumbStream.Dispose();
+                if (file.Extension == ".tif")
+                {
+                    var thumbStream = tiffTothumb(file);
+                    containerClient.UploadBlob(CalculateThumbBlobName(file), thumbStream);
+                }
+
+                if (file.Extension == ".pdf")
+                {
+                    PdfDocument doc = new PdfDocument();
+                    doc.LoadFromFile(file.FullName);
+                    Stream image = doc.SaveAsImage(0);
+                    Bitmap bitmap = new Bitmap(image);
+
+                    const int thumbnailSize = 150;
+                    var imageHeight = bitmap.Height;
+                    var imageWidth = bitmap.Width;
+                    if (imageHeight > imageWidth)
+                    {
+                        imageWidth = (int)(((float)imageWidth / (float)imageHeight) * thumbnailSize);
+                        imageHeight = thumbnailSize;
+                    }
+                    else
+                    {
+                        imageHeight = (int)(((float)imageHeight / (float)imageWidth) * thumbnailSize);
+                        imageWidth = thumbnailSize;
+                    }
+
+                    Stream thumbStream = new MemoryStream();
+                    using (var thumb = bitmap.GetThumbnailImage(imageWidth, imageHeight, () => false, IntPtr.Zero))
+                    {
+
+                        thumb.Save(thumbStream, ImageFormat.Jpeg);
+                        thumbStream.Position = 0;
+                    }
+                    containerClient.UploadBlob(CalculateThumbBlobName(file), thumbStream);
+                }
+
+
+
+                ////BlobClient blobClient = containerClient.GetBlobClient(CalculateBlobName(file));
+                ////using FileStream uploadFileStream = File.OpenRead(file.FullName);
+
+                //var pdfStream = tiffToPdf(file);
+                //containerClient.UploadBlob(CalculateBlobName(file), pdfStream);
+                //var thumbStream = tiffTothumb(file);
+                //containerClient.UploadBlob(CalculateThumbBlobName(file), thumbStream);
+
+                //pdfStream.Dispose();
+                //thumbStream.Dispose();
 
                 return true;
             }
-            catch(Exception ex) {
-                Console.WriteLine($"error uploading image {file.Name}");
-                Console.WriteLine($"waiting 3");
-                //Task.Delay(3000);
-                
-                //uploadBlob(file);
+            catch (RequestFailedException ex)
+            {
+                if (ex.Status == 409)
+                    Log.Error("UPLOAD DUPLICATED ERROR {file}", file.Name);
+                else {
+                    Log.Error("UPLOAD ERROR {status} {file}",ex.Status,  file.Name);
+                }
+                return false;
+
+            }
+            catch (Exception ex) {
+                Log.Error("UPLOAD ERROR {file}", file.Name);
                 return false;
             }
             
 
         }
 
-
+       
         public async Task Navigate(DirectoryInfo directory) {
 
-            if (directory.GetFiles().Length > 0) {
-                ProcessFolder(directory);
+            if (directory.Name.Length == 4 && (int.Parse(directory.Name) < _start || int.Parse(directory.Name) > _end))
+                return;
+
+
+            if (directory.GetFiles().Length > 0)
+            {
+                await ProcessFolder(directory);
             }
 
-            if (directory.GetDirectories().Length > 0) {
-                foreach (var dir in directory.GetDirectories()) {
+
+            if (directory.GetDirectories().Length > 0)
+            {
+
+                foreach (var dir in directory.GetDirectories())
+                {
                     Console.WriteLine($"navigating folder {dir.FullName}");
-                    Navigate(dir);
+                    await Navigate(dir);
                 }
             }
+            
         }
 
 
         private string CalculateBlobName(FileInfo file) {
 
 
-            var name = @$"{file.Directory.Parent.Parent.Name}\{file.Directory.Parent.Name}\{file.Directory.Name}\{file.Directory.Parent.Parent.Name}_{file.Directory.Parent.Name}_{file.Directory.Name}_{file.Name.Replace($"{file.Extension}",".pdf")}";
+            var name = @$"{file.Directory.Parent.Parent.Name}\{file.Directory.Parent.Name}\{file.Directory.Name}\{file.Directory.Parent.Parent.Name}_{file.Directory.Parent.Name}_{file.Directory.Name}_{file.Name}";
             return name;
         }
 
@@ -135,19 +207,30 @@ namespace HPorvenir.Blob
         }
 
         private bool checkfilestructure(DirectoryInfo dir, out string year) {
+
+
             try
             {
+                if ("El Porvenir" != dir.Parent.Parent.Parent.Name)
+                {
+                    throw new Exception("invalid file structure");
+                }
+
+
                 year = dir.Parent.Parent.Name;
                 return dir.Name.Length == 2 && dir.Parent.Name.Length == 2 && dir.Parent.Parent.Name.Length == 4;
             }
-            catch {
+            catch
+            {
+                //Log.Information("error {dirname}", dir.FullName);
                 year = "0";
                 return false;
             }
+
+          
             
 
         }
-
 
         public Stream tiffToPdf(FileInfo file)
         {
@@ -244,7 +327,6 @@ namespace HPorvenir.Blob
 
         }
 
-
         public void exportIndex() {
 
             string basepath = @"E:\Indices";
@@ -255,7 +337,6 @@ namespace HPorvenir.Blob
                 uploadIndex(indexfolder);
             }
         }
-
 
         private bool uploadIndex(DirectoryInfo index) {
 

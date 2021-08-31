@@ -27,6 +27,18 @@ namespace HPorvenir.Authentication
         }
 
 
+        public bool UserExistsByUser(string userName) {
+            try
+            {
+                return _userDal.ExistsUsers(userName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "error trying to get user");
+                return false;
+            }
+        }
+
         public Model.User VerifyUser(string user, string password) {
             
             Model.User _user = null;
@@ -70,5 +82,53 @@ namespace HPorvenir.Authentication
 
             return _user;
         }
+
+
+        public List<Model.User> GetUsers() {
+
+            var users = _userDal.GetUsers();
+            foreach (var item in users) {
+                try
+                {
+                    item.Password = Encryption.Decode(item.Password, key);
+                }
+                catch { 
+                }                
+            }
+
+            return users;
+        }
+
+        public Model.User AddUsers(Model.User user)
+        {
+            try
+            {
+                user.Password = Encryption.Encode(user.Password, key);
+            }
+            catch { 
+            
+            }
+            
+            var id = _userDal.AddUsers(user);
+            user.Id = id;
+            return user;
+        }
+
+
+        public Model.User UpdateUsers(Model.User user)
+        {
+            user.Password = Encryption.Encode(user.Password, key);
+
+            var id = _userDal.UpdateUsers(user);
+            user.Id = id;
+            return user;
+        }
+
+        public bool DeleteUsers(int id)
+        {
+            _userDal.DeleteUsers(id);
+            return true;
+        }
+
     }
 }

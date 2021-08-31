@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "HPorvenir.Blob": {
+    "sandbox": {
       "commandName": "Project",
       "commandLineArgs": "\"D:\\DEV\\El Porvenir\" 2"
     }

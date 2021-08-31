@@ -5,6 +5,7 @@
     <UserSecretsId>7f0cb18c-6131-4bd2-b2f5-71cff9df425a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <ApplicationInsightsResourceId>/subscriptions/3903cf3b-81d7-4be8-8ecd-14e7139161e9/resourceGroups/com.porvenir/providers/microsoft.insights/components/hporvenir</ApplicationInsightsResourceId>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

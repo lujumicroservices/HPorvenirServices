@@ -13,13 +13,35 @@ namespace HPorvenir.Blob
 
         static async System.Threading.Tasks.Task Main(string[] args)
         {
+
+            
+
             Console.WriteLine(args[0]);
             Console.WriteLine(args[1]);
 
+            string path = args[0];
+            int hilos = int.Parse(args[1]);
+            int start = 0;
+            int end = 3000;
 
-            BlobManager manager = new BlobManager();
-            manager.initIndexBlob("");
-            manager.exportIndex();
+            if (args.Length > 2) {
+                Console.WriteLine(args[2]);
+                start = int.Parse(args[2]);
+            }
+
+            if (args.Length > 3)
+            {
+                Console.WriteLine(args[3]);
+                end = int.Parse(args[3]);
+            }
+            
+
+            BlobManager manager = new BlobManager(path, hilos, start, end);
+            manager.MigrateData();
+
+
+            //manager.initIndexBlob("");
+            //manager.exportIndex();
 
 
             //getpasswords("gc3/h0kIvetxD6Se3V+azw==", "<CET>Digix.S.A.Gdl.Jalisco.Mx</CET>");

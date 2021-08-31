@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
 </Project>
