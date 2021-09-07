@@ -51,7 +51,7 @@ namespace HPorvenir.Storage
             string day = stringDate.Substring(6, 2);
             string filename = pathId.Substring(8, pathId.Length - 8);
 
-            string path = $"{year}/{month}/{day}/{year}_{month}_{day}_{filename.Replace(".xml",".pdf")}";            
+            string path = $"{year}/{month}/{day}/{year}_{month}_{day}_{filename.Replace(".xml",".tif")}";            
             var bclient = _container.GetBlobClient(path);
 
             MemoryStream bstream = new MemoryStream();
@@ -187,7 +187,7 @@ namespace HPorvenir.Storage
 
 
         }
-            
+
         public DayResult ListDay(int year, int month, int day) {
 
 
@@ -201,11 +201,11 @@ namespace HPorvenir.Storage
             List<string> files_thumb = new List<string>();
 
             var filter = $"{year}/{month.ToString("0#")}/{day.ToString("0#")}/";
-            var blobs = _container.GetBlobs(prefix: filter);            
+            var blobs = _container.GetBlobs(prefix: filter);
 
             foreach (BlobItem blob in blobs)
             {
-                if (blob.Name.Contains(".pdf"))
+                if (blob.Name.Contains(".pdf") || blob.Name.Contains(".tif"))
                 {
                     files.Add(blob.Name);
                 }

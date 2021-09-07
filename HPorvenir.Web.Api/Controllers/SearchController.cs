@@ -44,6 +44,7 @@ namespace HPorvenir.Web.Api.Controllers
         [HttpPost("file")]
         public async Task<ActionResult> FileInfoAsync(SearchRequest searchRequest)
         {
+            bool isPDF = searchRequest.FileName.EndsWith(".pdf");
             Searcher searcher = new Searcher("hporvenir*");
             _logger.LogDebug("search {@searchRequest}", searchRequest);
             var resultHits = searcher.FileDetails(searchRequest.FileName, searchRequest.Terms, searchRequest.IsPhrase, searchRequest.StartDate, searchRequest.EndDate);
@@ -61,7 +62,7 @@ namespace HPorvenir.Web.Api.Controllers
 
             var isAdmin = HttpContext.User.Claims.Any(x => x.Type == ClaimTypes.Role && x.Value == "admin" );
 
-            var pdfStream =  doc.ProcessFile(fileStream, resultHits, isAdmin);
+            var pdfStream =  doc.ProcessFile(fileStream, resultHits, searchRequest.Terms, isPDF, isAdmin);
            
             return new FileStreamResult(pdfStream, new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/pdf"));
         }
