@@ -41,8 +41,11 @@ namespace sandbox
 
             Log.Information("Start_index");
 
-            BlobManager manager = new BlobManager(path, hilos, start, end);
-            await manager.MigrateData();
+            CreateThumb t = new CreateThumb();
+            await t.ExecuteAsync();
+
+            //BlobManager manager = n ew BlobManager(path, hilos, start, end);
+            //await manager.MigrateData();
 
 
             
