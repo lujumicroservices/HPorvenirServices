@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HPorvenir.Web.Api.Controllers
 {
- 
+
 
 
     [ApiController]
@@ -30,14 +30,26 @@ namespace HPorvenir.Web.Api.Controllers
             _logger = logger;
         }
 
-        
+
         [HttpPost("login")]
         public IActionResult login(Login login)
         {
             var user = _authManager.VerifyUser(login.User, login.Password);
-            var token = _authManager.GenerateToken(user);            
-            return Ok(new { user = user, access_token = token  });
+            var token = _authManager.GenerateToken(user);
+            return Ok(new { user = user, access_token = token });
         }
+
+        [HttpGet("iplogin")]
+        [AllowAnonymous]
+        public IActionResult IpLogin()
+        {
+
+            var ip = HttpContext.Connection.RemoteIpAddress;
+
+
+            return Ok(ip);
+        }
+
 
         [HttpGet("accesstoken")]
         [Authorize]

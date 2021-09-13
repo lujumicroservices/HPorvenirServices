@@ -22,10 +22,12 @@ namespace sandbox
 
             BlobContainerClient _container = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "hemerotecav2");
 
+            
+
             var startDate = new DateTime(2005, 01, 01);
 
             List<DateTime> datesToProcess = new List<DateTime>();
-            while (startDate.Year < 2022) {
+            while (startDate.Year < 2006) {
                 datesToProcess.Add(startDate);
                 startDate = startDate.AddDays(1);
                 Log.Information("adding Date {0}" ,startDate);
@@ -33,9 +35,9 @@ namespace sandbox
 
 
             var options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 8;
+            options.MaxDegreeOfParallelism = 64;
 
-            Parallel.ForEach(datesToProcess,null, date =>
+            Parallel.ForEach(datesToProcess, options, date =>
              {
 
                  try
@@ -50,14 +52,15 @@ namespace sandbox
                      Log.Information($"thumbs: {tblobs.Count}");
 
                      if (tblobs.Count < blobs.Where(x => x.Name.Contains(".pdf")).Count())
-                     {
-
-                         
-
+                     {                         
                          foreach (BlobItem blob in blobs)
                          {
-                             if (blob.Name.Contains(".pdf"))
+                             var blobnewname = blob.Name.Replace(filter, tfilter).Replace(".pdf", ".jpg");
+
+
+                             if (blob.Name.Contains(".pdf") && !tblobs.Any(x=>x.Name == blobnewname))
                              {
+                                                                  
                                  var bcli = _container.GetBlobClient(blob.Name);
 
                                  MemoryStream bstream = new MemoryStream();
@@ -121,7 +124,7 @@ namespace sandbox
                                  }
 
 
-                                 var blobnewname = blob.Name.Replace(filter, tfilter).Replace(".pdf", ".jpg");
+
                                  Log.Information($"uploading jpg : {blobnewname}");
                                  try
                                  {
@@ -134,6 +137,13 @@ namespace sandbox
                                  {
                                      Log.Error($"error procesing image i guess already exists : {blobnewname}");
                                  }
+
+
+                                 bstream.Dispose();
+                                 thumbStream.Dispose();
+                                 bitmap.Dispose();
+                                 image.Dispose();
+                                 doc.Dispose();
 
                              }
                          }
