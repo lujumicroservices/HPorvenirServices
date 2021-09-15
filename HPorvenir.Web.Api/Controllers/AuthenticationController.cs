@@ -47,7 +47,7 @@ namespace HPorvenir.Web.Api.Controllers
             var ip = HttpContext.Connection.RemoteIpAddress;
 
 
-            return Ok(ip);
+            return Ok(ip.ToString());
         }
 
 
