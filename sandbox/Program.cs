@@ -15,8 +15,8 @@ namespace sandbox
 
             string path = args[0];
             int hilos = int.Parse(args[1]);
-            int start = 0;
-            int end = 3000;
+            int start = 2005;
+            int end = 2010;
 
             if (args.Length > 2)
             {
@@ -42,13 +42,13 @@ namespace sandbox
             Log.Information("Start_index");
 
             CreateThumb t = new CreateThumb();
-            await t.ExecuteAsync();
-
+            await t.ExecuteAsync(path, hilos, start, end);
+            //await t.ExecuteAsyncUp(path, hilos);
             //BlobManager manager = n ew BlobManager(path, hilos, start, end);
             //await manager.MigrateData();
 
 
-            
+
 
 
         }
