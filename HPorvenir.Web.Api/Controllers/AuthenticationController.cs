@@ -39,15 +39,66 @@ namespace HPorvenir.Web.Api.Controllers
             return Ok(new { user = user, access_token = token });
         }
 
-        [HttpGet("iplogin")]
+        [HttpGet("iplogin/{ipAddress}")]
         [AllowAnonymous]
-        public IActionResult IpLogin()
+        public IActionResult IpLogin(string ipAddress)
         {
+            var configip = new List<string> {
+                "2806:103e:1b:cea:b514:a964:731b:600",
+                "187.160.241.65",
+                "201.96.108.213",
+                "201.117.175.102",
+                "201.134.33.209",
+                "207.248.45.178"
+            };
 
-            var ip = HttpContext.Connection.RemoteIpAddress;
-            
-            return Ok(HttpContext.Request.Headers.Select(x => x.Value).ToList());
+            string user = "";
+            string pass = "";
+
+            var tipo = 0;
+
+            if (configip.Contains(ipAddress)) {
+                tipo = 1;
+            }
+
+            if (ipAddress.StartsWith("148.234") || ipAddress.StartsWith("148.210") || ipAddress== "200.52.15.206" || ipAddress == "200.57.7.105" || ipAddress == "200.67.0.182") {
+                tipo = 2;
+            }
+
+            if (ipAddress.StartsWith("201.144.14")) {
+                tipo = 2;
+            }
+
+            if (ipAddress.StartsWith("189.254.215"))
+            {
+                tipo = 2;
+            }
+            if (ipAddress.StartsWith("201.147.197"))
+            {
+                tipo = 2;
+            }
+
+
+            if (tipo == 1)
+            {
+                user = "hemeroteca";
+                pass = "dgxusrh";
+            }
+            else if (tipo == 2)
+            {
+                user = "uanl";
+                pass = "uanldgx12";
+            }
+            else {
+                return Unauthorized();
+            }
+
+            var userObj = _authManager.VerifyUser(user, pass);
+            var token = _authManager.GenerateToken(userObj);
+            return Ok(new { user = user, access_token = token });            
         }
+
+
 
 
         [HttpGet("accesstoken")]
