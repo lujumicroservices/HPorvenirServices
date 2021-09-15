@@ -25,10 +25,10 @@ namespace sandbox
 
             
 
-            var startDate = new DateTime(start, 01, 01);
+            var startDate = new DateTime(2016, 01, 01);
 
             List<DateTime> datesToProcess = new List<DateTime>();
-            while (startDate.Year < end) {
+            while (startDate.Year < 2018) {
                 datesToProcess.Add(startDate);
                 startDate = startDate.AddDays(1);
                 Log.Information("adding Date {0}" ,startDate);
@@ -67,7 +67,7 @@ namespace sandbox
                      
 
 
-                     return;
+                     
 
                      if (tblobs.Count < blobs.Where(x => x.Name.Contains(".pdf")).Count())
                      {                         
