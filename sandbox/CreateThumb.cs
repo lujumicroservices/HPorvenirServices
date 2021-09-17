@@ -64,9 +64,9 @@ namespace sandbox
                          //Log.Information($"pdfs: {blobs.Where(x => x.Name.Contains(".pdf")).Count()}");
                          //Log.Information($"thumbs: {tblobs.Count}");
                      }
-                     
 
 
+                     return;
                      
 
                      if (tblobs.Count < blobs.Where(x => x.Name.Contains(".pdf")).Count())

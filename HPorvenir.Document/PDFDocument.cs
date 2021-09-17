@@ -36,7 +36,7 @@ namespace HPorvenir.Document
                 pageT.Canvas.DrawImage(pdfImg, 0, 0, fitWidth, fitHeight);
             }
 
-            PdfImage pima = PdfImage.FromFile(@"./assets/marca_agua.gif");
+            PdfImage pima = PdfImage.FromFile(@"./assets/marca_agua.png");
             PdfPen pen = new PdfPen(PdfBrushes.Yellow, 1f);
             PdfBrush brush1 = PdfBrushes.Yellow;
             var page = doc.Pages[0];            
