@@ -41,7 +41,7 @@ namespace HPorvenir.Document
             PdfBrush brush1 = PdfBrushes.Yellow;
             var page = doc.Pages[0];            
 
-            page.Canvas.SetTransparency(.5f);
+            page.Canvas.SetTransparency(.3f);
             
             bool bitLine = true;
             double vpositions =  page.Size.Height / pima.Height;

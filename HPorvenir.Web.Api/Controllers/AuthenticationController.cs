@@ -34,9 +34,18 @@ namespace HPorvenir.Web.Api.Controllers
         [HttpPost("login")]
         public IActionResult login(Login login)
         {
-            var user = _authManager.VerifyUser(login.User, login.Password);
-            var token = _authManager.GenerateToken(user);
-            return Ok(new { user = user, access_token = token });
+            try
+            {
+                var user = _authManager.VerifyUser(login.User, login.Password);
+                var token = _authManager.GenerateToken(user);
+                return Ok(new { user = user, access_token = token });
+            }
+            catch (Exception ex) {
+                return Ok(new { error = new List<Error> { new Error { Type = "manual", Message = ex.Message } } });
+            }
+            
+            
+            
         }
 
         [HttpGet("iplogin/{ipAddress}")]

@@ -24,7 +24,7 @@ namespace HPorvenir.User.DAL
         {
             using (IDbConnection db = _connectionFactory.CreateConnection()) 
             {                                
-                return db.QueryFirst<Model.User>("Select * From Users WHERE UserName=@userName", new { userName = userName } );
+                return db.QueryFirstOrDefault<Model.User>("Select * From Users WHERE UserName=@userName", new { userName = userName } );
             }
         }
 
@@ -50,7 +50,7 @@ namespace HPorvenir.User.DAL
         {         
             using (IDbConnection db = _connectionFactory.CreateConnection())
             {
-                string sql = "INSERT INTO Users (Email, LastName, Name, Password, UserName) VALUES (@Email, @LastName, @Name, @Password, @UserName)";                
+                string sql = "INSERT INTO Users (Email, LastName, Name, Password, UserName, RoleArray) VALUES (@Email, @LastName, @Name, @Password, @UserName,@RoleArray)";                
                 return db.Execute(sql, user);
             }
         }
@@ -59,7 +59,7 @@ namespace HPorvenir.User.DAL
         {         
             using (IDbConnection db = _connectionFactory.CreateConnection())
             {
-                string sql = "UPDATE Users set  Email = @Email, LastName = @LastName, Name = @Name, Password = @Password, UserName = @UserName WHERE Id = @Id";
+                string sql = "UPDATE Users set  Email = @Email, LastName = @LastName, Name = @Name, Password = @Password, UserName = @UserName, RoleArray = @RoleArray WHERE Id = @Id";
                 return db.Execute(sql, user);
             }
         }

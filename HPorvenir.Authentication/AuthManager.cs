@@ -52,16 +52,25 @@ namespace HPorvenir.Authentication
             }
 
 
-            _logger.LogDebug("validate process start");
-            if (password == Encryption.Decode(_user.Password, key))
+            if (_user != null)
             {
-                return _user;
+                _logger.LogDebug("validate process start");
+                if (password == Encryption.Decode(_user.Password, key))
+                {
+                    return _user;
+                }
+                else {
+                    _logger.LogError(@$"incorrect password for user {user}", user);
+                }                
             }
-            else { 
-            //return incorrect password
+            else {
+                _logger.LogError(@$"user {user} does not exists", user);
             }
 
-            return _user;
+
+            throw new Exception("Usuario o Contraseña incorrecto");
+
+            
         }
 
         public Model.User GetUset(string user)
