@@ -113,7 +113,42 @@ namespace HPorvenir.Web.Api.Controllers
             return Ok(new { user = user, access_token = token });            
         }
 
+        [HttpGet("remotelogin/{secret}/{iv}")]
+        [AllowAnonymous]
+        public IActionResult Remote(string secret, string iv)
+        {
+            _logger.LogInformation(@$"try log remote {secret} - {iv}");
 
+            string key = "vOVH6sdmpNWjRRIqCc7rdxs01lwHzfr3";
+            var text = Encryption.DecriptCRT(key, iv, secret);
+            var data = text.Split("@");
+            try {
+                if (data.Length == 2)
+                {
+                    if (double.Parse(data[1]) > DateTime.Now.Millisecond - 10000)
+                    {
+                        return IpLogin(data[0]);
+                    }
+                }
+
+            }
+            catch  {
+                return Unauthorized();
+            }                       
+            return Unauthorized();
+        }
+
+
+
+
+        //[HttpGet("diagnostico")]
+        //[AllowAnonymous]
+        //public IActionResult diagnostico()
+        //{
+        //    var user = _authManager.GetUset(HttpContext.User.Identity.Name);
+        //    var token = _authManager.GenerateToken(user);
+        //    return Ok(new { user = user, access_token = token });
+        //}
 
 
         [HttpGet("accesstoken")]

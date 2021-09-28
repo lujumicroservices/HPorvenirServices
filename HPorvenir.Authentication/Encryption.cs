@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CS_AES_CTR;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -50,6 +51,54 @@ namespace HPorvenir.Authentication
             cryptoStream.Clear();
             cryptoServiceProvider.Clear();
             return unicodeEncoding.GetString(memoryStream1.ToArray());            
+        }
+
+
+        public static string DecriptCRT(string keys, string iv,string content) {
+
+            
+            // In real world, generate these with cryptographically secure pseudo-random number generator (CSPRNG)
+            byte[] key = Encoding.UTF8.GetBytes(keys);
+            byte[] initialCounter = StringToByteArrayFastest(iv);
+
+            // Decrypt
+            var d = StringToByteArrayFastest(content);
+            AES_CTR forDecrypting = new AES_CTR(key, initialCounter);
+            byte[] decryptedContent = new byte[d.Length];
+            forDecrypting.DecryptBytes(decryptedContent, d);
+
+            // Print 3
+
+            var text = Encoding.Default.GetString(decryptedContent);
+            Console.WriteLine($"Decrypted bytes \t\t{text}");
+            return text;
+
+        }
+
+        public static byte[] StringToByteArrayFastest(string hex)
+        {
+            if (hex.Length % 2 == 1)
+                throw new Exception("The binary key cannot have an odd number of digits");
+
+            byte[] arr = new byte[hex.Length >> 1];
+
+            for (int i = 0; i < hex.Length >> 1; ++i)
+            {
+                arr[i] = (byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1])));
+            }
+
+            return arr;
+        }
+
+        public static int GetHexVal(char hex)
+        {
+            int val = (int)hex;
+            //For uppercase A-F letters:
+            //return val - (val < 58 ? 48 : 55);
+            //For lowercase a-f letters:
+            //return val - (val < 58 ? 48 : 87);
+            //Or the two combined, but a bit slower:
+            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
         }
 
     }
