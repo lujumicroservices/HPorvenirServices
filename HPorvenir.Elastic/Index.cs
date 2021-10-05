@@ -15,7 +15,7 @@ namespace HPorvenir.Elastic
         int _hilos = 1;
         ElasticClient client;
         string _indexPath;
-        string _indexName;
+        string _indexName = "hporvenirv2v2_2005-2021";
         int _start;
         int _end;
 
@@ -32,6 +32,12 @@ namespace HPorvenir.Elastic
             var settings = new ConnectionSettings(new Uri("https://hporvenir-elastic.es.westus2.azure.elastic-cloud.com:9243")).DefaultIndex(_indexName).ApiKeyAuthentication("TAvQfXoBALKbRWliRmnL", "SoEZ9e7HQZO8gOXF_qHbZg");
             client = new ElasticClient(settings);
 
+        }
+
+        public Index()
+        {
+            var settings = new ConnectionSettings(new Uri("https://hporvenir-elastic.es.westus2.azure.elastic-cloud.com:9243")).DefaultIndex(_indexName).ApiKeyAuthentication("TAvQfXoBALKbRWliRmnL", "SoEZ9e7HQZO8gOXF_qHbZg");
+            client = new ElasticClient(settings);
         }
 
         public Index(string indexPath, string indexName)
@@ -224,6 +230,99 @@ namespace HPorvenir.Elastic
                 year = "0";
                 return false;
             }
+        }
+
+
+
+        public async Task IndexPDF(MemoryStream fileStream, string blobName) 
+        {
+
+            var path = blobName.Split("/");
+            var nameNoExtension = path[1].Substring(0, path[1].Length - 4);
+
+            Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(fileStream);
+            var page = doc.Pages[0];
+            var content = page.ExtractText();
+
+            List<Paragraph> document = new List<Paragraph>();
+            int fileDate = int.Parse(path[0]);
+            document.Add(
+                new Paragraph
+                {
+                    Content = content,
+                    Date = fileDate,
+                    Id = $"{fileDate}{nameNoExtension.Replace("-", "")}0",
+                    Name = $"{fileDate}{path[1]}"
+                }
+            );
+
+            Console.WriteLine($"Index file {path[1]}");
+            try
+            {
+                bool retry = true;
+                while (retry)
+                {
+                    var response = client.IndexMany<Paragraph>(document);
+                    if (!response.Errors)
+                    {
+                        retry = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine("ORIGINAL EXCEPTIONS");
+                        Console.WriteLine(response.OriginalException.Message);
+                        Console.WriteLine("ITEMS WITH ERRORS");
+                        foreach (var r in response.ItemsWithErrors)
+                        {
+                            Console.WriteLine(r.Error.Reason);
+                        }
+                        throw new Exception("index  response with error");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error {ex.Message}  inner {ex.InnerException?.Message}");
+                throw new Exception("index error", ex);
+            }
+
+
+        }
+
+        public async Task IndexXML(MemoryStream fileStream, string blobName)
+        {
+            Parser.XmlParser parser = new Parser.XmlParser();
+            var document = parser.ParseXml(fileStream, blobName);            
+
+            try
+            {
+                bool retry = true;
+                while (retry)
+                {
+                    var response = client.IndexMany(document);
+                    if (!response.Errors)
+                    {
+                        retry = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine("ORIGINAL EXCEPTIONS");
+                        Console.WriteLine(response.OriginalException.Message);
+                        Console.WriteLine("ITEMS WITH ERRORS");
+                        foreach (var r in response.ItemsWithErrors)
+                        {
+                            Console.WriteLine(r.Error.Reason);
+                        }
+                        throw new Exception("index  response with error");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error {ex.Message}  inner {ex.InnerException?.Message}");
+                throw new Exception("index error", ex);
+            }
+
         }
 
 

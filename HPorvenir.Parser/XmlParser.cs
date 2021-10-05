@@ -72,6 +72,55 @@ namespace HPorvenir.Parser
         }
 
 
+        public List<Paragraph> ParseXml(MemoryStream fileStream, string blobName)
+        {
+
+            var path = blobName.Split("/");
+            var nameNoExtension = path[1].Substring(0, path[1].Length-4);
+
+            List<Paragraph> paragraphs = new List<Paragraph>();
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.IgnoreWhitespace = true;
+            
+            XPathDocument xPath = new XPathDocument(fileStream);
+            var navigator = xPath.CreateNavigator();
+
+            //Compile the query with a namespace prefix. 
+            XPathExpression query = navigator.Compile("METS:mets/METS:dmdSec/METS:amdSec/METS:mdWrap/METS:xmlData/hiddentext/pagecolumn/region/paragraph");
+
+            //Do some BS to get the default namespace to actually be called . 
+            var nameSpace = new XmlNamespaceManager(navigator.NameTable);
+            nameSpace.AddNamespace("METS", "http://www.loc.gov/METS/");
+            query.SetContext(nameSpace);
+
+            var paragraph = navigator.Select(query);
+
+            int paraindex = 0;
+            while (paragraph.MoveNext())
+            {
+
+                StringBuilder content = new StringBuilder();
+
+                var words = paragraph.Current.Select("line/word");
+                while (words.MoveNext())
+                {
+                    content.Append(ConvertWesternEuropeanToASCII(words.Current.Value.ToLower()) + " ");
+                }
+
+                paragraph.Current.MoveToFirstAttribute();
+
+                paragraphs.Add(new Paragraph { Id = $"{path[0]}{nameNoExtension.Replace("-", "")}{paraindex.ToString()}", Date = int.Parse(path[0]), Name = $"{path[0]}{path[1]}", Coords = paragraph.Current.Value, Content = content.ToString() });
+                paraindex++;
+            }
+            
+
+            return paragraphs;
+        }
+
+
+
+
         public string ConvertWesternEuropeanToASCII(string text)
         {
             var normalizedString = text.Normalize(NormalizationForm.FormD);
