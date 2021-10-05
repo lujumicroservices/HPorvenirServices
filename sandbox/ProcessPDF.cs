@@ -44,13 +44,15 @@ namespace sandbox
                 Log.Error("fetching file from storage {@file}", stageClient.Name);
             }
 
-            var tumbStream = PDFToThumb(stream,fileName);
-
-            var targetClient = _hemerotecav2.GetBlobClient(CalculateBlobName(fileName));
-            var targetTClient = _hemerotecav2.GetBlobClient(CalculateThumbBlobName(fileName, ".pdf"));
+           
 
             try
             {
+                var tumbStream = PDFToThumb(stream, fileName);
+
+                var targetClient = _hemerotecav2.GetBlobClient(CalculateBlobName(fileName));
+                var targetTClient = _hemerotecav2.GetBlobClient(CalculateThumbBlobName(fileName, ".pdf"));
+
 
                 if (!targetClient.Exists()) {
                     stream.Position = 0;
@@ -78,6 +80,8 @@ namespace sandbox
 
                 telemetry.TrackEvent(fileName, new Dictionary<string, string>() { { "step", "delete" } });
                 Log.Information("Process {fileName} {step}", fileName, "delete");
+
+                tumbStream.Close();
             }
             catch (Exception ex)
             {
@@ -85,7 +89,7 @@ namespace sandbox
             }
             finally
             {
-                tumbStream.Close();
+              
                 stream.Close();
             }
 
