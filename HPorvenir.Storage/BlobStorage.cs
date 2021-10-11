@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace HPorvenir.Storage
 {
@@ -222,6 +223,13 @@ namespace HPorvenir.Storage
         
         }
 
-        
+        public Stream GetMetadata()
+        {
+            BlobContainerClient _missingData = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "metadata");
+            var metadataClient = _missingData.GetBlobClient("missingDatesv2.json");
+            MemoryStream stream = new MemoryStream();
+            metadataClient.DownloadTo(stream);
+            return stream;
+        }
     }
 }

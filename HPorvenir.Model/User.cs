@@ -20,6 +20,9 @@ namespace HPorvenir.Model
                 return RoleArray.Split(',');
             } 
         }
+
+        public string Duration { get; set; }
+
         public string RoleArray { get; set; }
     }
 }

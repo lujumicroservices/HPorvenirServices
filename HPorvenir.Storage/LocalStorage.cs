@@ -14,6 +14,11 @@ namespace HPorvenir.Storage
             throw new NotImplementedException();
         }
 
+        public Stream GetMetadata()
+        {
+            throw new NotImplementedException();
+        }
+
         public DayResult ListDay(int year, int month, int day)
         {
             throw new NotImplementedException();

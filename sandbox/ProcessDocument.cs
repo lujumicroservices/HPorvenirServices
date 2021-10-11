@@ -12,7 +12,7 @@ namespace sandbox
 
 
 
-        public abstract  Task ExecuteAsync(string fileName);
+        public abstract  Task<bool> ExecuteAsync(string fileName);
 
 
         protected string CalculateBlobName(string path)

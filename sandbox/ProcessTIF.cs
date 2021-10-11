@@ -21,8 +21,9 @@ namespace sandbox
         
         }
 
-        public override async Task ExecuteAsync(string fileName) {
+        public override async Task<bool> ExecuteAsync(string fileName) {
 
+            bool result = false;
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.InstrumentationKey = "af471157-d0a3-4a20-b7e7-e9c479852bb2";
 
@@ -79,6 +80,8 @@ namespace sandbox
 
                 telemetry.TrackEvent(fileName, new Dictionary<string, string>() { { "step", "delete" } });
                 Log.Information("Process {fileName} {step}", fileName, "delete");
+
+                result = true;
             }
             catch (Exception ex)
             {
@@ -89,6 +92,8 @@ namespace sandbox
 
 
             }
+
+            return result;
         }
 
         public Stream TiffTothumb(MemoryStream file)

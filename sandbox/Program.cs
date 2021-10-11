@@ -64,19 +64,18 @@ namespace sandbox
               .WriteTo
                 .ApplicationInsights(configuration, TelemetryConverter.Events)
               .CreateLogger();
-            
+
             //CreateThumb t = new CreateThumb();
             //await t.ExecuteAsync(path, hilos, start, end);
             //await t.ExecuteAsyncUp(path, hilos);
             //BlobManager manager = n ew BlobManager(path, hilos, start, end);
             //await manager.MigrateData();
 
-            ProcessStage process = new ProcessStage();
+            ProcessStage process = new ProcessStage();                        
             await process.ExecuteAsync();
 
-
-
-
+            UpdateIndex index = new UpdateIndex();
+            index.ExecuteAsync();
 
         }
 

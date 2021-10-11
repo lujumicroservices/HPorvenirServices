@@ -27,7 +27,7 @@ namespace HPorvenir.Web.Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            Navegation.Navegation navlogic = new Navegation.Navegation();
+            Navegation.Navegation navlogic = new Navegation.Navegation(_storageProvider);
             var data = navlogic.LoadNavigation();
             return Ok(data);
         }

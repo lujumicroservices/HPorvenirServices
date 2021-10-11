@@ -44,7 +44,6 @@ namespace HPorvenir.Blob
             containerClient = blobServiceClient.GetBlobContainerClient("hemerotecav2");
             containerClient.CreateIfNotExists();
         }
-
         
         public async Task MigrateData() {
             //string basepath = @"D:\HPorvenir\";
@@ -52,8 +51,6 @@ namespace HPorvenir.Blob
             DirectoryInfo directory = new DirectoryInfo(basepath);
             await Navigate(directory);
         }
-
-
 
         public Task ProcessFolder(DirectoryInfo directory)
         {

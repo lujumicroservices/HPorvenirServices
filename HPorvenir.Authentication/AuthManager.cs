@@ -54,6 +54,15 @@ namespace HPorvenir.Authentication
 
             if (_user != null)
             {
+
+                if (!string.IsNullOrEmpty(_user.Duration)) {
+                    var duration = Convert.ToDateTime(_user.Duration);
+
+                    if (DateTime.Now.CompareTo(duration) > 0) {
+                        throw new Exception("La cuenta de usuario expiro");
+                    }
+                }
+
                 _logger.LogDebug("validate process start");
                 if (password == Encryption.Decode(_user.Password, key))
                 {
