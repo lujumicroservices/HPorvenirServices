@@ -44,6 +44,7 @@ namespace HPorvenir.Web.Api.Controllers
         [HttpGet("file/{pathId}")]
         public async Task<IActionResult> GetFileAsync(string pathId)
         {
+            pathId = pathId.Replace("@@", "/");
             bool isPDF = pathId.EndsWith(".pdf");
             Stream fileStream = null;
             try
