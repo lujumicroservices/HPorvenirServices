@@ -47,7 +47,7 @@ namespace HPorvenir.Web.Api.Controllers
             return Ok(result);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public IActionResult deleteUsers(int id)
         {
             var result = _authManager.DeleteUsers(id);
