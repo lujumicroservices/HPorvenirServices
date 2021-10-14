@@ -26,7 +26,7 @@ namespace HPorvenir.Web.Api.Controllers
 
         public static void CreateTestMessage2(Contact contact)
         {
-            string to = "s_perdiendo@msn.com";
+            string to = "editorial@prodigy.net.mx";
             string from = "ben@contoso.com";
             MailMessage message = new MailMessage(from, to);
             message.Subject = "contacto hemeroteca porvenir";
