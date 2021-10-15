@@ -19,7 +19,7 @@ namespace HPorvenir.Elastic
         {
             _indexName = indexName;
 
-            var settings = new ConnectionSettings(new Uri("https://hporvenir-elastic.es.westus2.azure.elastic-cloud.com:9243")).DefaultIndex(_indexName).ApiKeyAuthentication("TAvQfXoBALKbRWliRmnL", "SoEZ9e7HQZO8gOXF_qHbZg");
+            var settings = new ConnectionSettings(new Uri("https://aa19934ba78e42a5a2677efb2f3f5612.westus2.azure.elastic-cloud.com:9243")).DefaultIndex(_indexName).ApiKeyAuthentication("TAvQfXoBALKbRWliRmnL", "SoEZ9e7HQZO8gOXF_qHbZg");
             settings.DisableDirectStreaming();
             _client = new ElasticClient(settings);
         }
