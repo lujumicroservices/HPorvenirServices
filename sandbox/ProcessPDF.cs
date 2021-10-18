@@ -62,7 +62,7 @@ namespace sandbox
 
                 HPorvenir.Elastic.Index index = new HPorvenir.Elastic.Index();
                 stream.Position = 0;
-                index.IndexPDF(stream, fileName);
+                await index.IndexPDF(stream, fileName);
 
                 telemetry.TrackEvent(fileName, new Dictionary<string, string>() { { "step", "copy" } });
                 Log.Information("Process {fileName} {step}", fileName, "copy");
