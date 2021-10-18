@@ -137,9 +137,7 @@ namespace HPorvenir.Web.Api.Controllers
             }                       
             return Unauthorized();
         }
-
-
-
+      
 
         //[HttpGet("diagnostico")]
         //[AllowAnonymous]
