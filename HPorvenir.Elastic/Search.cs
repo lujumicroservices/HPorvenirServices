@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using HPorvenir.Model;
+using System.Globalization;
 
 namespace HPorvenir.Elastic
 {
@@ -24,8 +25,30 @@ namespace HPorvenir.Elastic
             _client = new ElasticClient(settings);
         }
 
+        static string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
 
         public List<AggResult> Search(string[] terms,bool phrase, DateTime? startDate = null, DateTime? endDate = null) {
+
+            for (int i = 0; i < terms.Length; i++) {
+                terms[i] = RemoveDiacritics(terms[i].ToLower());
+            }
+
 
             List<QueryContainer> cont = new List<QueryContainer>();
             QueryContainerDescriptor<Paragraph> mustQry = new QueryContainerDescriptor<Paragraph>();
