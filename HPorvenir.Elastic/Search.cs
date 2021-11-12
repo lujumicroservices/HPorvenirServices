@@ -64,7 +64,8 @@ namespace HPorvenir.Elastic
             }
 
             var results = _client.Search<Paragraph>(s => s
-                .Query(q =>
+            .Analyzer("asciifolding")    
+            .Query(q =>
                     q.Bool(b => b.Must(cont.ToArray()))
                  ).Aggregations(ag =>
                         ag.Terms("fileagg", term => term.Field("name").Size(500))
