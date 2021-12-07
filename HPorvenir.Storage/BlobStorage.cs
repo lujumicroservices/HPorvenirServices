@@ -226,7 +226,7 @@ namespace HPorvenir.Storage
         public Stream GetMetadata()
         {
             BlobContainerClient _missingData = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "metadata");
-            var metadataClient = _missingData.GetBlobClient("missingDatesv2.json");
+            var metadataClient = _missingData.GetBlobClient("missingDatesv3.json");
             MemoryStream stream = new MemoryStream();
             metadataClient.DownloadTo(stream);
             return stream;

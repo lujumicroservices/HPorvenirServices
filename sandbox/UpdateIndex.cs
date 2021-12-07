@@ -75,8 +75,8 @@ namespace sandbox
                     writer.Write(missingDatesString);
                     writer.Flush();
                     stream.Position = 0;
-                    _missingData.DeleteBlobIfExists("missingDatesv2.json");
-                    _missingData.UploadBlob("missingDatesv2.json", stream);
+                    _missingData.DeleteBlobIfExists("missingDatesv3.json");
+                    _missingData.UploadBlob("missingDatesv3.json", stream);
                 }
 
                 
@@ -105,7 +105,7 @@ namespace sandbox
                         //add year
                         start = new DateTime(start.Year + 1, 1, 1);
                     }
-                    else if ((curr.Month > start.Month && start.Day == 1) || curr.Year > start.Year)
+                    else if ((curr.Month > start.Month && start.Day == 1) || (curr.Year > start.Year && start.Day == 1))
                     {
                         if (!missingDates[start.Year].ContainsKey(start.Month))
                         {
