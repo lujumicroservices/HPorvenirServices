@@ -58,7 +58,7 @@ namespace HPorvenir.Web.Api.Controllers
             }
 
             PDFDocument doc = new PDFDocument();
-            var isAdmin = HttpContext.User.Claims.Any(x => x.Type == ClaimTypes.Role && x.Value == "admin");
+            var isAdmin = HttpContext.User.Claims.Any(x => x.Type == ClaimTypes.Role && x.Value == "superadmin");
             var pdfStream = doc.ProcessFile(fileStream, null,null, isPDF, isAdmin);
             return new FileStreamResult(pdfStream, new Microsoft.Net.Http.Headers.MediaTypeHeaderValue("application/pdf"));            
         }
