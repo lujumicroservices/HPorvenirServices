@@ -55,6 +55,7 @@ namespace HPorvenir.Web.Api.Controllers
             _logger.LogInformation(@$"try login by ip from ip {ipAddress}");
 
             var configip = new List<string> {
+                "148.234.90.53",
                 "2806:103e:1b:cea:b514:a964:731b:600",
                 "187.160.241.65",
                 "201.96.108.213",
