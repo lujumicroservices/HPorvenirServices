@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30204.135
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.Web.Api", "HPorvenir.Web.Api\HPorvenir.Web.Api.csproj", "{8B808B35-4F18-4AB9-87F8-12EE2C44FCBD}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.Authentication", "HPorvenir.Authentication\HPorvenir.Authentication.csproj", "{217F5A2D-B1AA-466A-B88B-BA42643110DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPorvenir.User.DAL", "HPorvenir.User.DAL\HPorvenir.User.DAL.csproj", "{62CF97E7-D069-45C6-96D2-55F834880E25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migration", "Migration\Migration.csproj", "{D6DA2F79-793A-46BB-8731-756DCB5094E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +173,14 @@ Global
 		{62CF97E7-D069-45C6-96D2-55F834880E25}.Release|Any CPU.Build.0 = Release|Any CPU
 		{62CF97E7-D069-45C6-96D2-55F834880E25}.Release|x86.ActiveCfg = Release|x86
 		{62CF97E7-D069-45C6-96D2-55F834880E25}.Release|x86.Build.0 = Release|x86
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Debug|x86.Build.0 = Debug|Any CPU
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Release|x86.ActiveCfg = Release|Any CPU
+		{D6DA2F79-793A-46BB-8731-756DCB5094E5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
