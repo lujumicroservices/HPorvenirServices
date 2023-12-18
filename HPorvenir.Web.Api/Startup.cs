@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System;
 using System.Data.SqlClient;
 using System.Text;
@@ -84,7 +85,12 @@ namespace HPorvenir.Web.Api
 
             services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_CONNECTIONSTRING"]);
             services.AddControllers().AddNewtonsoftJson();
-            
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+            });
+
 
         }
 
@@ -95,7 +101,7 @@ namespace HPorvenir.Web.Api
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseSwagger();
             app.UseHttpsRedirection();            
             app.UseRouting();
             app.UseCors("all");           
@@ -106,10 +112,18 @@ namespace HPorvenir.Web.Api
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor |
                 ForwardedHeaders.XForwardedProto
             });
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
+                // The Swagger UI is available at /swagger/index.html
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            
+
 
         }
     }

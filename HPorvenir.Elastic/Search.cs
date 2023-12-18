@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq;
 using HPorvenir.Model;
 using System.Globalization;
+using System.Reflection.Metadata.Ecma335;
 
 namespace HPorvenir.Elastic
 {
@@ -20,8 +21,9 @@ namespace HPorvenir.Elastic
         {
             _indexName = indexName;
 
-            var settings = new ConnectionSettings(new Uri("https://aa19934ba78e42a5a2677efb2f3f5612.westus2.azure.elastic-cloud.com:9243")).DefaultIndex(_indexName).ApiKeyAuthentication("TAvQfXoBALKbRWliRmnL", "SoEZ9e7HQZO8gOXF_qHbZg");
+            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g");
             settings.DisableDirectStreaming();
+            settings.ServerCertificateValidationCallback((a, b, c,d) => true);
             _client = new ElasticClient(settings);
         }
 

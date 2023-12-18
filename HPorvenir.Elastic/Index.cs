@@ -15,7 +15,7 @@ namespace HPorvenir.Elastic
         int _hilos = 1;
         ElasticClient client;
         string _indexPath;
-        string _indexName = "hporvenirv2v2_2005-2021";
+        string _indexName = "hporvenirv_2005-2021";
         int _start;
         int _end;
 
@@ -29,14 +29,14 @@ namespace HPorvenir.Elastic
             _indexName = indexname;
             _hilos = hilos;
 
-            var settings = new ConnectionSettings(new Uri("https://aa19934ba78e42a5a2677efb2f3f5612.westus2.azure.elastic-cloud.com:9243")).DefaultIndex(_indexName).ApiKeyAuthentication("TAvQfXoBALKbRWliRmnL", "SoEZ9e7HQZO8gOXF_qHbZg");
+            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g");
             client = new ElasticClient(settings);
 
         }
 
         public Index()
         {
-            var settings = new ConnectionSettings(new Uri("https://aa19934ba78e42a5a2677efb2f3f5612.westus2.azure.elastic-cloud.com:9243")).DefaultIndex(_indexName).ApiKeyAuthentication("TAvQfXoBALKbRWliRmnL", "SoEZ9e7HQZO8gOXF_qHbZg");
+            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g");
             client = new ElasticClient(settings);
         }
 
