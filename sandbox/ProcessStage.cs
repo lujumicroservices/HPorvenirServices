@@ -15,15 +15,15 @@ namespace sandbox
     {
 
         string stageContainer = "hemerotecav2";
-        string prodContainer = "hporvenir";
+        string prodContainer = "hemerotecav2";
 
-        BlobContainerClient _container = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "hporvenir");
+        BlobContainerClient _container = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "hemerotecav2");
         BlobContainerClient _missingData = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "metadata");
 
 
         public async Task ExecuteAsync()
         {
-            var pending_blobs = _container.GetBlobs();
+            var pending_blobs = _container.GetBlobs(prefix: "2024");
             var missingData = _missingData.GetBlobClient("missingDatesv2.json");
 
 
@@ -43,7 +43,7 @@ namespace sandbox
             ConcurrentBag<string> daysProcessed = new ConcurrentBag<string>();
 
             var options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 8;
+            options.MaxDegreeOfParallelism = 1;
             //foreach (var b in pending_blobs)
             Parallel.ForEach(pending_blobs, options, b =>
             {
@@ -65,10 +65,10 @@ namespace sandbox
                         ProcessPDF pdf = new ProcessPDF();
                         success = pdf.ExecuteAsync(b.Name).Result;
                     }
-                    else
-                    {
-                        _container.DeleteBlob(b.Name);
-                    }
+                    
+                  
+                       
+                    
                 }
                 catch (Exception ex)
                 {

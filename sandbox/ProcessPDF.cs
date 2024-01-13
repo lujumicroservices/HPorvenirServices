@@ -24,7 +24,7 @@ namespace sandbox
 
             TelemetryClient telemetry = new TelemetryClient(configuration);
 
-            BlobContainerClient _hporvenir = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "hporvenir");
+            BlobContainerClient _hporvenir = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "hemerotecav2");
             BlobContainerClient _hemerotecav2 = new BlobContainerClient("DefaultEndpointsProtocol=https;AccountName=hemerotecaporvenir;AccountKey=bNsoZn/JEWvP3pqSlD5p9tTQTzowNlWkXaMtKLa0MPppSnRK4QrLMvTGeyQcTh7b/x7cMTLMm/DoNqJ6bMFDDA==;EndpointSuffix=core.windows.net", "hemerotecav2");
 
             var stageClient = _hporvenir.GetBlobClient(fileName);
@@ -48,17 +48,17 @@ namespace sandbox
 
             try
             {
-                var tumbStream = PDFToThumb(stream, fileName);
+               // var tumbStream = PDFToThumb(stream, fileName);
 
-                var targetClient = _hemerotecav2.GetBlobClient(CalculateBlobName(fileName));
-                var targetTClient = _hemerotecav2.GetBlobClient(CalculateThumbBlobName(fileName, ".pdf"));
+               // var targetClient = _hemerotecav2.GetBlobClient(CalculateBlobName(fileName));
+             //   var targetTClient = _hemerotecav2.GetBlobClient(CalculateThumbBlobName(fileName, ".pdf"));
 
 
-                if (!targetClient.Exists()) {
+                /*if (!targetClient.Exists()) {
                     stream.Position = 0;
                     await targetClient.UploadAsync(stream);
                 }
-
+                */
 
                 HPorvenir.Elastic.Index index = new HPorvenir.Elastic.Index();
                 stream.Position = 0;
@@ -67,7 +67,7 @@ namespace sandbox
                 telemetry.TrackEvent(fileName, new Dictionary<string, string>() { { "step", "copy" } });
                 Log.Information("Process {fileName} {step}", fileName, "copy");
 
-                if (!targetTClient.Exists())
+                /*if (!targetTClient.Exists())
                     await targetTClient.UploadAsync(tumbStream);
 
 
@@ -82,7 +82,7 @@ namespace sandbox
                 Log.Information("Process {fileName} {step}", fileName, "delete");
 
                 tumbStream.Close();
-                result = true;
+                */result = true;
             }
             catch (Exception ex)
             {
@@ -98,7 +98,7 @@ namespace sandbox
 
         }
 
-        public Stream PDFToThumb(MemoryStream stream, string fileName) {
+     /*   public Stream PDFToThumb(MemoryStream stream, string fileName) {
             
             PdfDocument doc = new PdfDocument();
             doc.LoadFromStream(stream);
@@ -149,6 +149,6 @@ namespace sandbox
             return thumbStream;
 
         }
-
+     */
     }
 }

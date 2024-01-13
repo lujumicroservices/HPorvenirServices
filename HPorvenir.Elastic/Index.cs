@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hporvenir.Indexer;
@@ -15,7 +16,7 @@ namespace HPorvenir.Elastic
         int _hilos = 1;
         ElasticClient client;
         string _indexPath;
-        string _indexName = "hporvenirv_2005-2021";
+        string _indexName = "hporvenir_2005-2021";
         int _start;
         int _end;
 
@@ -29,14 +30,16 @@ namespace HPorvenir.Elastic
             _indexName = indexname;
             _hilos = hilos;
 
-            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g");
+            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g")
+            .ServerCertificateValidationCallback((a, b, c, d) => true);
             client = new ElasticClient(settings);
 
         }
 
         public Index()
         {
-            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g");
+            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g")
+                .ServerCertificateValidationCallback((a, b, c, d) => true);
             client = new ElasticClient(settings);
         }
 
@@ -234,11 +237,11 @@ namespace HPorvenir.Elastic
 
 
 
-        public async Task IndexPDF(MemoryStream fileStream, string blobName) 
+        public async Task IndexPDF(MemoryStream fileStream, string blobName)
         {
 
             var path = blobName.Split("/");
-            var nameNoExtension = path[1].Substring(0, path[1].Length - 4);
+            var nameNoExtension = path[3].Substring(0, path[3].Length - 4);
 
             Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(fileStream);
             var page = doc.Pages[0];
@@ -253,21 +256,26 @@ namespace HPorvenir.Elastic
                     Date = fileDate,
                     Id = $"{fileDate}{nameNoExtension.Replace("-", "")}0",
                     Name = $"{fileDate}{path[1]}"
+                  
                 }
             );
 
-            Console.WriteLine($"Index file {path[1]}");
+            Console.WriteLine($"Index file {path[3]}");
             try
             {
                 bool retry = true;
                 while (retry)
                 {
-                    var response = client.IndexMany<Paragraph>(document);
-                    if (!response.Errors)
+                    var response = client.IndexDocument<Paragraph>(document[0]);
+                    if (response.IsValid)
                     {
                         retry = false;
                     }
-                    else
+                    
+                   
+                    
+                    /*else
+                     
                     {
                         Console.WriteLine("ORIGINAL EXCEPTIONS");
                         Console.WriteLine(response.OriginalException.Message);
@@ -277,7 +285,7 @@ namespace HPorvenir.Elastic
                             Console.WriteLine(r.Error.Reason);
                         }
                         throw new Exception("index  response with error");
-                    }
+                    }*/
                 }
             }
             catch (Exception ex)
