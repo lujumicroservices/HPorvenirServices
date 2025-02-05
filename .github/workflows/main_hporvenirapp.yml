@@ -4,9 +4,7 @@
 name: Build and deploy ASP.Net Core app to Azure Web App - hporvenirapp
 
 on:
-  push:
-    branches:
-      - main
+  
   workflow_dispatch:
 
 jobs:
