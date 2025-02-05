@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - hporvenirapp
 
 on:
@@ -22,10 +19,18 @@ jobs:
           dotnet-version: '3.1.301'
           include-prerelease: true
 
+      # Fix for missing ICU package
+      - name: Install ICU package
+        run: sudo apt-get update && sudo apt-get install -y libicu-dev
+
       - name: Build with dotnet
+        env:
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: true # Set invariant globalization mode
         run: dotnet build HPorvenir.Web.Api/HPorvenir.Web.Api.csproj --configuration Release -v n
 
       - name: dotnet publish
+        env:
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: true
         run: dotnet publish HPorvenir.Web.Api/HPorvenir.Web.Api.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp -v n
 
       - name: Upload artifact for deployment job
@@ -55,4 +60,3 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B854768443164600B56215BD52597AC0 }}
           package: .
-
