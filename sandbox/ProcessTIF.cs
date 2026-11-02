@@ -16,9 +16,9 @@ namespace sandbox
 {
     public class ProcessTIF : ProcessDocument
     {
-        
-        public ProcessTIF() { 
-        
+        public ProcessTIF(HPorvenir.Elastic.Index elasticIndex = null)
+            : base(elasticIndex)
+        {
         }
 
         public override async Task<bool> ExecuteAsync(string fileName) {

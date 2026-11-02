@@ -58,7 +58,7 @@ namespace HPorvenir.Web.Api
                      x.SaveToken = true;
                      x.TokenValidationParameters = new TokenValidationParameters
                      {
-                         ValidateIssuerSigningKey = false,
+                         ValidateIssuerSigningKey = true,
                          IssuerSigningKey = mySecurityKey,
                          ValidateIssuer = false,
                          ValidateAudience = false,

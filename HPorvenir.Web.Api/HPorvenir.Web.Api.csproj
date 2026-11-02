@@ -46,6 +46,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\HPorvenir.Elastic\elastic.cloud.settings.json" Link="elastic.cloud.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="assets\marca_agua.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

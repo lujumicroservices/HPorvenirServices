@@ -16,7 +16,7 @@ namespace HPorvenir.Model
 
         public string FileName {
             get {
-                return Name.Substring(7, Name.Length - 8);
+                return Name.Length > 8 ? Name.Substring(8) : string.Empty;
             }
         }
     }

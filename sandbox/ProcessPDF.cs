@@ -15,6 +15,10 @@ namespace sandbox
 {
     public class ProcessPDF: ProcessDocument
     {
+        public ProcessPDF(HPorvenir.Elastic.Index elasticIndex = null)
+            : base(elasticIndex)
+        {
+        }
 
         public override async Task<bool> ExecuteAsync(string fileName)
         {
@@ -54,15 +58,16 @@ namespace sandbox
                 var targetTClient = _hemerotecav2.GetBlobClient(CalculateThumbBlobName(fileName, ".pdf"));
 
 
-                if (!targetClient.Exists()) {
+                var destBlobPath = CalculateBlobName(fileName).Replace('\\', '/');
+
+                if (!await targetClient.ExistsAsync())
+                {
                     stream.Position = 0;
                     await targetClient.UploadAsync(stream);
                 }
 
-
-                HPorvenir.Elastic.Index index = new HPorvenir.Elastic.Index();
                 stream.Position = 0;
-                await index.IndexPDF(stream, fileName);
+                await ElasticIndex.IndexPDF(stream, destBlobPath);
 
                 telemetry.TrackEvent(fileName, new Dictionary<string, string>() { { "step", "copy" } });
                 Log.Information("Process {fileName} {step}", fileName, "copy");

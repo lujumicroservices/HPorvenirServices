@@ -3,6 +3,7 @@ using Azure.Storage.Blobs.Models;
 using BitMiracle.LibTiff.Classic;
 using BitMiracle.Tiff2Pdf;
 using HPorvenir.Model;
+using HPorvenir.Parser;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -46,27 +47,13 @@ namespace HPorvenir.Storage
 
         public async System.Threading.Tasks.Task<Stream> ReadPathFromIndexAsync(string pathId)
         {
-            string stringDate = pathId.Substring(0, 8);
-            string year = stringDate.Substring(0, 4);
-            string month = stringDate.Substring(4, 2);
-            string day = stringDate.Substring(6, 2);
-            string filename = pathId.Substring(8, pathId.Length - 8);
-
-            string path = $"{year}/{month}/{day}/{year}_{month}_{day}_{filename.Replace(".xml",".tif")}";            
-            var bclient = _container.GetBlobClient(path);
-
-            MemoryStream bstream = new MemoryStream();
-            try
+            if (!BlobPathParser.TryResolveBlobPathFromDocumentName(pathId, out var path))
             {
-                await bclient.DownloadToAsync(bstream);
+                throw new ArgumentException($"Unsupported indexed document name: {pathId}");
             }
-            catch (Exception ex) {
-                _logger.LogError("fetching file from storage {@file}", path);
-                throw new Exception($"Error occurs trying to fetch the file {path} ",ex);
-            }
-            
-            bstream.Position = 0;
-            return bstream;                     
+
+            _logger.LogInformation("Resolving indexed document {DocumentName} to blob path {BlobPath}", pathId, path);
+            return await ReadPathAsync(path);
         }
 
         public async System.Threading.Tasks.Task<Stream> ReadPathAsync(string pathId)

@@ -1,0 +1,12 @@
+{
+  "Ftp": {
+    "Host": "YOUR_FTP_HOST",
+    "Port": 21,
+    "Username": "YOUR_USERNAME",
+    "Password": "YOUR_PASSWORD",
+    "UsePassive": true,
+    "UseSsl": false,
+    "RootPath": "/",
+    "_comment": "XML stays on FTP only. Indexer streams files in memory (ftp mode); TIFF/PDF remain in Azure Blob for viewing."
+  }
+}

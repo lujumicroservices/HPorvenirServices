@@ -12,6 +12,10 @@ namespace sandbox
 {
     public class ProcessXML : ProcessDocument
     {
+        public ProcessXML(HPorvenir.Elastic.Index elasticIndex = null)
+            : base(elasticIndex)
+        {
+        }
 
         public override async Task<bool> ExecuteAsync(string fileName)
         {
@@ -32,8 +36,7 @@ namespace sandbox
             {
                 var response = await stageClient.DownloadToAsync(stream);
                 stream.Position = 0;
-                HPorvenir.Elastic.Index index = new HPorvenir.Elastic.Index();
-                await index.IndexXML(stream, fileName);
+                await ElasticIndex.IndexXML(stream, fileName);
                 telemetry.TrackEvent(fileName, new Dictionary<string, string>() { { "step", "index" } });
                 Log.Information("Process {fileName} {step}", fileName, "index");
 
@@ -45,7 +48,7 @@ namespace sandbox
             }
             catch (Exception ex)
             {
-                Log.Error("fetching file from storage {@file}", stageClient.Name);
+                Log.Error(ex, "Failed to process XML blob {FileName}", fileName);
             }
             finally {
                 stream.Close();

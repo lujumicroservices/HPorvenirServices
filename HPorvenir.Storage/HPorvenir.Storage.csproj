@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HPorvenir.Model\HPorvenir.Model.csproj" />
+    <ProjectReference Include="..\HPorvenir.Parser\HPorvenir.Parser.csproj" />
     <ProjectReference Include="..\HPorvenir.Tiff2PDF\HPorvenir.Tiff2PDF.csproj" />
   </ItemGroup>
 

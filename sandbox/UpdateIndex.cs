@@ -34,7 +34,12 @@ namespace sandbox
             
             var pending_blobs = _container.GetBlobsByHierarchy(prefix: "", delimiter:"/").ToList();
             foreach (var item in pending_blobs) {
-                if (int.Parse(item.Prefix.Substring(0,4)) >= startnumber)
+                var yearPrefix = item.Prefix?.TrimEnd('/') ?? "";
+                if (yearPrefix.Length != 4 || !int.TryParse(yearPrefix, out var year) || year < startnumber)
+                {
+                    continue;
+                }
+
                 {
                     var months = _container.GetBlobsByHierarchy(prefix: item.Prefix, delimiter: "/").ToList();
                     foreach (var month in months)
@@ -44,10 +49,13 @@ namespace sandbox
                         {
 
                             var daySplit = day.Prefix.Split("/");
-                            if (daySplit.Length == 4)
+                            if (daySplit.Length == 4 &&
+                                int.TryParse(daySplit[0], out var y) &&
+                                int.TryParse(daySplit[1], out var m) &&
+                                int.TryParse(daySplit[2], out var d))
                             {
-                                var curr = new DateTime(int.Parse(daySplit[0]), int.Parse(daySplit[1]), int.Parse(daySplit[2]));
-                                globalDate = new DateTime(int.Parse(daySplit[0]), int.Parse(daySplit[1]), int.Parse(daySplit[2]));
+                                var curr = new DateTime(y, m, d);
+                                globalDate = curr;
 
                                 evaluateDate(curr);
 

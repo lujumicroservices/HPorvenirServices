@@ -347,4 +347,12 @@ healthchecksdb
 MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
-.ionide/
+HPorvenir.Elastic/elastic.cloud.settings.json
+HPorvenir.Elastic/ftp.settings.json
+_deploy/
+_deploy_linux.zip
+_deploy.zip
+indexer-checkpoint.json
+indexer-failures.jsonl
+indexer-state/
+hporvenirv2_*-indexer-checkpoint.json

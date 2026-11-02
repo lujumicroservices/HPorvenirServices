@@ -1,0 +1,26 @@
+name: Daily Azure blob index
+
+on:
+  schedule:
+    # 06:00 America/Monterrey (UTC-6), once a day
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: daily-blob-index
+  cancel-in-progress: false
+
+jobs:
+  index-new-blobs:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core 3.1
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '3.1.x'
+
+      - name: Index blobs modified since the last successful run
+        run: dotnet run --project HPorvenir.Elastic/HPorvenir.Elastic.csproj -c Release -- daily

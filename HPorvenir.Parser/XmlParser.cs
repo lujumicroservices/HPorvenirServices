@@ -74,9 +74,12 @@ namespace HPorvenir.Parser
 
         public List<Paragraph> ParseXml(MemoryStream fileStream, string blobName)
         {
+            if (!BlobPathParser.TryParse(blobName, out var fileDate, out var fileName))
+            {
+                throw new InvalidOperationException($"Unsupported blob path format: {blobName}");
+            }
 
-            var path = blobName.Split("/");
-            var nameNoExtension = path[1].Substring(0, path[1].Length-4);
+            var nameNoExtension = Path.GetFileNameWithoutExtension(fileName);
 
             List<Paragraph> paragraphs = new List<Paragraph>();
 
@@ -110,7 +113,7 @@ namespace HPorvenir.Parser
 
                 paragraph.Current.MoveToFirstAttribute();
 
-                paragraphs.Add(new Paragraph { Id = $"{path[0]}{nameNoExtension.Replace("-", "")}{paraindex.ToString()}", Date = int.Parse(path[0]), Name = $"{path[0]}{path[1]}", Coords = paragraph.Current.Value, Content = content.ToString() });
+                paragraphs.Add(new Paragraph { Id = $"{fileDate}{nameNoExtension.Replace("-", "")}{paraindex.ToString()}", Date = fileDate, Name = BlobPathParser.BuildDocumentName(fileDate, fileName), Coords = paragraph.Current.Value, Content = content.ToString() });
                 paraindex++;
             }
             

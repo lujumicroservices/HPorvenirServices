@@ -1,0 +1,13 @@
+{
+  "Elastic": {
+    "UseElasticCloud": true,
+    "Url": "https://YOUR_DEPLOYMENT.centralus.azure.elastic-cloud.com:443",
+    "CloudId": "My_deployment:YOUR_CLOUD_ID_BASE64",
+    "ApiKey": "YOUR_BASE64_API_KEY",
+    "SearchAlias": "hporvenir-current",
+    "ContentAnalyzer": "spanish_folded",
+    "NumberOfShards": 1,
+    "NumberOfReplicas": 1,
+    "RequestTimeoutSeconds": 120
+  }
+}

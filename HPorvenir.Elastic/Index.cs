@@ -1,332 +1,275 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using Hporvenir.Indexer;
 using HPorvenir.Parser;
-using Nest;
 using Serilog;
+using Spire.Pdf;
 
 namespace HPorvenir.Elastic
 {
     public class Index
     {
-        int _hilos = 1;
-        ElasticClient client;
-        string _indexPath;
-        string _indexName = "hporvenirv_2005-2021";
-        int _start;
-        int _end;
-
-        IndexClient _client;
-
-        public Index(int start, int end, string indexname, int hilos) {
-            
-
-            _start = start;
-            _end = end;
-            _indexName = indexname;
-            _hilos = hilos;
-
-            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g");
-            client = new ElasticClient(settings);
-
-        }
+        private IndexerSettings _settings;
+        private string _indexName;
+        private BulkIndexService _bulkService;
+        private readonly IndexClient _luceneClient;
 
         public Index()
         {
-            var settings = new ConnectionSettings(new Uri("https://40.124.185.84:9200/")).DefaultIndex(_indexName).ApiKeyAuthentication("eeoYHowB5SerKtpAEWzN", "201YWmlbQaC0rYGD8PeS6g");
-            client = new ElasticClient(settings);
+            var settings = IndexerSettingsLoader.Load();
+            Initialize(settings, settings.Elastic.DefaultIndex);
+        }
+
+        public Index(IndexerSettings settings, string indexName)
+        {
+            Initialize(settings, indexName);
+        }
+
+        public Index(int start, int end, string indexNamePrefix, int parallelism)
+            : this(
+                BuildLegacySettings(start, end, indexNamePrefix, parallelism),
+                start == end ? $"{indexNamePrefix}v2_{start}" : $"{indexNamePrefix}v2_{start}-{end}")
+        {
         }
 
         public Index(string indexPath, string indexName)
         {
             _indexName = indexName;
-            _indexPath = indexPath;
-            _client = new IndexClient(_indexPath, indexName);
+            _luceneClient = new IndexClient(indexPath, indexName);
         }
-
 
         public async Task ExecuteAsync(string basePath)
         {
-            DirectoryInfo directory = new DirectoryInfo(basePath);
+            Log.Information(
+                "Starting bulk index {IndexName} from {SourcePath} ({StartYear}-{EndYear})",
+                _indexName,
+                basePath,
+                _settings.Indexer.StartYear,
+                _settings.Indexer.EndYear);
+
+            var directory = new DirectoryInfo(basePath);
             await Navigate(directory);
+            await _bulkService.FlushAsync();
+
+            Log.Information(
+                "Bulk index completed for {IndexName}. Checkpointed sources: {CompletedCount}. Buffered remaining: {BufferedCount}",
+                _indexName,
+                _bulkService.CompletedSourceCount,
+                _bulkService.BufferedCount);
         }
 
         public async Task Navigate(DirectoryInfo directory)
         {
-            Log.Information("navigate processing folder {dirname}", directory.Name);
-            if (directory.Name.Length == 4 && (int.Parse(directory.Name) < _start || int.Parse(directory.Name) > _end))
-                return;
+            Log.Information("Navigate folder {DirectoryName}", directory.Name);
 
+            if (directory.Name.Length == 4)
+            {
+                if (!int.TryParse(directory.Name, out var year) ||
+                    year < _settings.Indexer.StartYear ||
+                    year > _settings.Indexer.EndYear)
+                {
+                    return;
+                }
+            }
 
-            Log.Information("folder with files {count}", directory.GetFiles().Length);
             if (directory.GetFiles().Length > 0)
             {
-                
                 await ProcessFolder(directory);
             }
 
-
-            Log.Information("folder with folders {count}", directory.GetDirectories().Length);
-            if (directory.GetDirectories().Length > 0)
+            foreach (var child in directory.GetDirectories())
             {
-                
-                foreach (var dir in directory.GetDirectories())
-                {
-                    Console.WriteLine($"navigating folder {dir.FullName}");
-                    await Navigate(dir);
-                }
+                Log.Information("Navigating child folder {ChildPath}", child.FullName);
+                await Navigate(child);
             }
         }
-
 
         public async Task ProcessFolder(DirectoryInfo directory)
-        {            
-            
-            
-            Log.Information($"PROCESSING FOLDER {directory.FullName}  with {_hilos}");
+        {
+            Log.Information("Processing folder {FolderPath}", directory.FullName);
 
-            var validDir = checkfilestructure(directory, out string year);
-            var files = directory.GetFiles("*.pdf");
-
-            if (files.Length == 0) { 
-             files = directory.GetFiles("*.xml");
-            }
-
-
-            var options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = _hilos;
-
-
-            Console.WriteLine($"validDir {validDir}");
-            if (validDir)
+            if (!TryValidateFolderStructure(directory, out _))
             {
-                Log.Information("processing folder {dirname}", directory.FullName);
-                Log.Information("files {count}", files.Length);
-
-                //foreach (var file in files)
-                Parallel.ForEach(files, options, file =>
-                {
-                    Console.WriteLine($"file: {file.FullName}");
-
-                    if ((file.Extension == ".xml"))
-                    {
-                        Console.WriteLine($"uploading data {file.FullName}");
-                        Parser.XmlParser parser = new Parser.XmlParser();
-                        Console.WriteLine($"Parse file {file.Name}");
-                        var document = parser.ParseXml(file);
-                        Console.WriteLine($"Index file {file.Name}");
-
-                        try
-                        {
-                            bool retry = true;
-                            while (retry)
-                            {
-                                var response = client.IndexMany<Paragraph>(document);
-                                if (!response.Errors)
-                                {
-                                    retry = false;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("ORIGINAL EXCEPTIONS");
-                                    Console.WriteLine(response.OriginalException.Message);
-                                    Console.WriteLine("ITEMS WITH ERRORS");
-                                    foreach (var r in response.ItemsWithErrors)
-                                    {
-                                        Console.WriteLine(r.Error.Reason);
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error {ex.Message}  inner {ex.InnerException?.Message}");
-                            throw new Exception("index error", ex);
-                        }
-                    }
-
-
-
-                    if (file.Extension == ".pdf")
-                    {
-                        Console.WriteLine($"uploading data {file.FullName}");
-
-                        Console.WriteLine($"Parse file {file.Name}");
-                        Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(file.FullName);
-                        var page = doc.Pages[0];
-                        var content = page.ExtractText();
-
-                        Console.WriteLine($"Parse file {file.Name}");
-                        List<Paragraph> document = new List<Paragraph>();
-                        int fileDate = int.Parse(file.Directory.Parent.Parent.Name + file.Directory.Parent.Name + file.Directory.Name);
-                        document.Add(
-                            new Paragraph
-                            {
-                                Content = content,
-                                Date = fileDate,
-                                Id = $"{fileDate}{file.Name.Replace(file.Extension, "").Replace("-", "")}0",
-                                Name = $"{fileDate}{file.Name}"
-                            }
-                        );
-
-                        Console.WriteLine($"Index file {file.Name}");
-                        try
-                        {
-                            bool retry = true;
-                            while (retry)
-                            {
-                                var response = client.IndexMany<Paragraph>(document);
-                                if (!response.Errors)
-                                {
-                                    retry = false;
-                                }
-                                else
-                                {
-                                    Console.WriteLine("ORIGINAL EXCEPTIONS");
-                                    Console.WriteLine(response.OriginalException.Message);
-                                    Console.WriteLine("ITEMS WITH ERRORS");
-                                    foreach (var r in response.ItemsWithErrors)
-                                    {
-                                        Console.WriteLine(r.Error.Reason);
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error {ex.Message}  inner {ex.InnerException?.Message}");
-                            throw new Exception("index error", ex);
-                        }
-                    }
-
-
-                 });
-                //}
+                Log.Information("Skipping invalid folder structure {FolderPath}", directory.FullName);
+                return;
             }
-            else {
-                Log.Information("skip folder {dirname}", directory.FullName);
+
+            var files = directory.GetFiles("*.pdf");
+            if (files.Length == 0)
+            {
+                files = directory.GetFiles("*.xml");
+            }
+
+            var pendingFiles = files
+                .Where(file => !_bulkService.IsSourceCompleted(file.FullName))
+                .ToArray();
+
+            Log.Information(
+                "Folder {FolderPath} has {PendingCount}/{TotalCount} files to index",
+                directory.FullName,
+                pendingFiles.Length,
+                files.Length);
+
+            if (pendingFiles.Length == 0)
+            {
+                return;
+            }
+
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = _settings.Indexer.Parallelism
+            };
+
+            Parallel.ForEach(pendingFiles, options, file =>
+            {
+                try
+                {
+                    if (file.Extension.Equals(".xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        IndexXmlFile(file);
+                    }
+                    else if (file.Extension.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+                    {
+                        IndexPdfFile(file);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Failed to index file {FilePath}", file.FullName);
+                    _bulkService.RecordFailure(file.FullName, ex.Message);
+                }
+            });
+
+            await _bulkService.FlushAsync();
+        }
+
+        public async Task IndexPDF(MemoryStream fileStream, string blobName)
+        {
+            var paragraphs = ParsePdfFromStream(fileStream, blobName);
+            if (paragraphs.Count == 0)
+            {
+                Log.Debug("No indexable PDF content extracted for {BlobName}", blobName);
+                _bulkService.MarkSourceCompleted(blobName);
+                return;
+            }
+
+            await _bulkService.EnqueueAndFlushIfNeededAsync(blobName, paragraphs);
+        }
+
+        public Task IndexXML(MemoryStream fileStream, string blobName) =>
+            IndexXML(fileStream, blobName, blobName);
+
+        /// <param name="blobName">Virtual path for <see cref="BlobPathParser"/> (document name / TIFF resolution).</param>
+        /// <param name="sourceKey">Checkpoint key; use <see cref="FtpPathMapper.ToSourceKey"/> for FTP sources.</param>
+        public async Task IndexXML(MemoryStream fileStream, string blobName, string sourceKey)
+        {
+            var parser = new XmlParser();
+            var paragraphs = parser.ParseXml(fileStream, blobName);
+            if (paragraphs.Count == 0)
+            {
+                Log.Debug("No paragraphs parsed from {SourceKey}", sourceKey);
+                _bulkService.MarkSourceCompleted(sourceKey);
+                return;
+            }
+
+            await _bulkService.EnqueueAndFlushIfNeededAsync(sourceKey, paragraphs);
+        }
+
+        private void IndexXmlFile(FileInfo file)
+        {
+            Log.Information("Parsing XML {FileName}", file.Name);
+            var parser = new XmlParser();
+            var paragraphs = parser.ParseXml(file);
+            _bulkService.Enqueue(file.FullName, paragraphs);
+        }
+
+        private void IndexPdfFile(FileInfo file)
+        {
+            Log.Information("Parsing PDF {FileName}", file.Name);
+
+            var fileDate = int.Parse(
+                file.Directory.Parent.Parent.Name +
+                file.Directory.Parent.Name +
+                file.Directory.Name);
+
+            var paragraphs = PdfTextExtractor.ExtractFromFile(fileDate, file.Name, file.FullName);
+            if (paragraphs.Count > 0)
+            {
+                _bulkService.Enqueue(file.FullName, paragraphs);
             }
         }
 
+        private static List<Paragraph> ParsePdfFromStream(MemoryStream fileStream, string blobName)
+        {
+            if (!BlobPathParser.TryParse(blobName, out var fileDate, out var fileName))
+            {
+                throw new InvalidOperationException($"Unsupported blob path format: {blobName}");
+            }
 
-        private bool checkfilestructure(DirectoryInfo dir, out string year)
+            return PdfTextExtractor.ExtractFromStream(fileDate, fileName, fileStream);
+        }
+
+        public Task FlushAsync() => _bulkService.FlushAsync();
+
+        public void FlushCheckpoint() => _bulkService.FlushCheckpoint();
+
+        public int CompletedSourceCount => _bulkService.CompletedSourceCount;
+
+        public string CheckpointPath => _bulkService.CheckpointPath;
+
+        public string LastCompletedSource => _bulkService.LastCompletedSource;
+
+        public bool IsSourceCompleted(string sourceKey) => _bulkService.IsSourceCompleted(sourceKey);
+
+        public void MarkSourceCompleted(string sourceKey) => _bulkService.MarkSourceCompleted(sourceKey);
+
+        public void RecordFailure(string sourceKey, string error) => _bulkService.RecordFailure(sourceKey, error);
+
+        private static bool TryValidateFolderStructure(DirectoryInfo directory, out string year)
         {
             try
             {
-                if ("El Porvenir" != dir.Parent.Parent.Parent.Name) {
-                    throw new Exception("invalid file structure");
+                if (directory.Parent?.Parent?.Parent?.Name != "El Porvenir")
+                {
+                    throw new InvalidOperationException("invalid file structure");
                 }
-                
 
-                year = dir.Parent.Parent.Name;
-                return dir.Name.Length == 2 && dir.Parent.Name.Length == 2 && dir.Parent.Parent.Name.Length == 4;
+                year = directory.Parent.Parent.Name;
+                return directory.Name.Length == 2 &&
+                       directory.Parent.Name.Length == 2 &&
+                       directory.Parent.Parent.Name.Length == 4;
             }
             catch
             {
-                Log.Information("error {dirname}", dir.FullName);
+                Log.Information("Invalid folder structure {FolderPath}", directory.FullName);
                 year = "0";
                 return false;
             }
         }
 
-
-
-        public async Task IndexPDF(MemoryStream fileStream, string blobName) 
+        private static IndexerSettings BuildLegacySettings(int start, int end, string indexNamePrefix, int parallelism)
         {
-
-            var path = blobName.Split("/");
-            var nameNoExtension = path[1].Substring(0, path[1].Length - 4);
-
-            Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument(fileStream);
-            var page = doc.Pages[0];
-            var content = page.ExtractText();
-
-            List<Paragraph> document = new List<Paragraph>();
-            int fileDate = int.Parse(path[0]);
-            document.Add(
-                new Paragraph
-                {
-                    Content = content,
-                    Date = fileDate,
-                    Id = $"{fileDate}{nameNoExtension.Replace("-", "")}0",
-                    Name = $"{fileDate}{path[1]}"
-                }
-            );
-
-            Console.WriteLine($"Index file {path[1]}");
-            try
-            {
-                bool retry = true;
-                while (retry)
-                {
-                    var response = client.IndexMany<Paragraph>(document);
-                    if (!response.Errors)
-                    {
-                        retry = false;
-                    }
-                    else
-                    {
-                        Console.WriteLine("ORIGINAL EXCEPTIONS");
-                        Console.WriteLine(response.OriginalException.Message);
-                        Console.WriteLine("ITEMS WITH ERRORS");
-                        foreach (var r in response.ItemsWithErrors)
-                        {
-                            Console.WriteLine(r.Error.Reason);
-                        }
-                        throw new Exception("index  response with error");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error {ex.Message}  inner {ex.InnerException?.Message}");
-                throw new Exception("index error", ex);
-            }
-
-
+            var settings = IndexerSettingsLoader.Load();
+            settings.Indexer.StartYear = start;
+            settings.Indexer.EndYear = end;
+            settings.Indexer.IndexNamePrefix = indexNamePrefix;
+            settings.Indexer.Parallelism = parallelism;
+            return settings;
         }
 
-        public async Task IndexXML(MemoryStream fileStream, string blobName)
+        private void Initialize(IndexerSettings settings, string indexName)
         {
-            Parser.XmlParser parser = new Parser.XmlParser();
-            var document = parser.ParseXml(fileStream, blobName);            
+            _settings = settings;
+            _indexName = indexName;
 
-            try
-            {
-                bool retry = true;
-                while (retry)
-                {
-                    var response = client.IndexMany(document);
-                    if (!response.Errors)
-                    {
-                        retry = false;
-                    }
-                    else
-                    {
-                        Console.WriteLine("ORIGINAL EXCEPTIONS");
-                        Console.WriteLine(response.OriginalException.Message);
-                        Console.WriteLine("ITEMS WITH ERRORS");
-                        foreach (var r in response.ItemsWithErrors)
-                        {
-                            Console.WriteLine(r.Error.Reason);
-                        }
-                        throw new Exception("index  response with error");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error {ex.Message}  inner {ex.InnerException?.Message}");
-                throw new Exception("index error", ex);
-            }
-
+            var elasticClient = ElasticClientFactory.Create(settings.Elastic, indexName);
+            var checkpointPath = IndexerSettingsLoader.BuildCheckpointPath(settings, indexName);
+            var failuresPath = IndexerSettingsLoader.BuildFailuresPath(settings, indexName);
+            var checkpoint = new IndexCheckpoint(checkpointPath, failuresPath);
+            _bulkService = new BulkIndexService(elasticClient, indexName, settings.Indexer, checkpoint);
         }
-
-
-
     }
 }
-
